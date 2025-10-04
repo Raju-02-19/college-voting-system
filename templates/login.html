@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <title>Login</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+  <div class="login-card">
+    
+    <!-- Heading -->
+    <h2>Login</h2>
+    
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- Login form -->
+    <form method="post" autocomplete="off">
+      <input type="text" name="roll_number" class="input-field" placeholder="Roll number" required autocomplete="off">
+      <input type="password" name="password" class="input-field" placeholder="Password" required autocomplete="new-password">
+      <button class="btn-primary" type="submit">Login</button>
+    </form>
+
+    <!-- Registration link -->
+    <p>Don’t have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,109 @@
+/* General body styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #74ebd5, #9face6);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Navbar styles */
+.navbar {
+    width: 100%;
+    background: linear-gradient(90deg, #11998e, #38ef7d);
+    padding: 15px 0;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.navbar a {
+    color: white;
+    margin: 0 20px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 16px;
+    transition: color 0.3s, transform 0.2s;
+}
+
+.navbar a:hover {
+    color: #ffe082;
+    transform: scale(1.1);
+}
+
+/* Box (login card) */
+.box {
+    margin-top: 80px;
+    background: white;
+    padding: 40px;
+    width: 350px;
+    border-radius: 12px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    text-align: center;
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Heading */
+.box h2 {
+    margin-bottom: 25px;
+    color: #2c3e50;
+    font-size: 24px;
+}
+
+/* Input fields */
+.box input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.box input:focus {
+    border-color: #38ef7d;
+    box-shadow: 0 0 6px rgba(56, 239, 125, 0.6);
+}
+
+/* Button */
+.box button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background: linear-gradient(90deg, #36d1dc, #5b86e5);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.box button:hover {
+    background: linear-gradient(90deg, #5b86e5, #36d1dc);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+}
+
+/* Flash messages */
+.flash-success {
+    color: green;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+.flash-error {
+    color: red;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}

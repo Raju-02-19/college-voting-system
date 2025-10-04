@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vote Submitted</title>
+    <style>
+        body { font-family: Arial, sans-serif; background:linear-gradient(135deg,#6a11cb,#2575fc); height:100vh; display:flex; justify-content:center; align-items:center; }
+        .box { background:#fff; padding:40px; border-radius:12px; text-align:center; box-shadow:0 6px 20px rgba(0,0,0,0.2); }
+        h2 { color:#2c3e50; }
+        a { display:inline-block; margin-top:20px; padding:10px 15px; background:#2575fc; color:white; text-decoration:none; border-radius:6px; }
+        a:hover { background:#1b5edb; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>✅ Thank you! Your vote has been recorded.</h2>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</body>
+</html>

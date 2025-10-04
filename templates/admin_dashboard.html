@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard - College Voting System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+</head>
+<body>
+
+<div class="navbar">
+    <span>⚙️ Admin Dashboard</span>
+    <div>
+        <a href="{{ url_for('admin_logout') }}">🚪 Logout</a>
+    </div>
+</div>
+
+<div class="container">
+    <h2>Welcome, Admin 👋</h2>
+
+    <div class="nav-buttons">
+        <a href="{{ url_for('admin_results') }}">📊 Results</a>
+        <a href="{{ url_for('manage_candidates') }}">📝 Manage Candidates</a>
+        <a href="{{ url_for('view_students') }}">🎓 Registered Students</a>
+    </div>
+</div>
+
+</body>
+</html>

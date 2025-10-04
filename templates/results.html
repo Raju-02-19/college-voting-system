@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Election Results - College Voting</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #89f7fe, #66a6ff);
+        color: #2d3748;
+    }
+    .navbar {
+        background: linear-gradient(90deg, #1e3c72, #2a5298);
+        padding: 15px 0;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .navbar a {
+        color: #ffdd57;
+        margin: 0 20px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    .navbar a:hover { color: #fff; transform: translateY(-2px); }
+    .container {
+        max-width: 1000px;
+        margin: 40px auto;
+        background: #fff;
+        padding: 30px 40px;
+        border-radius: 14px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    h2 { text-align: center; font-size: 28px; color: #1e3a8a; margin-bottom: 40px; }
+    h3 { color: #0f172a; margin-top: 30px; margin-bottom: 15px; font-size: 22px; font-weight: 600; }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 30px;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    th, td {
+        padding: 12px 15px;
+        text-align: center;
+        font-size: 15px;
+    }
+    th {
+        background: linear-gradient(90deg, #11998e, #38ef7d);
+        color: #fff;
+        font-weight: 700;
+        text-transform: uppercase;
+    }
+    tr:nth-child(even) { background-color: #f1f5f9; }
+    tr:hover { background-color: #e0f7fa; transition: 0.3s; }
+    img.candidate-img {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    @media (max-width: 768px) {
+        .container { padding: 20px; }
+        th, td { padding: 10px; }
+        .navbar a { margin: 0 10px; }
+    }
+</style>
+</head>
+<body>
+<div class="navbar">
+    <a href="{{ url_for('admin_dashboard') }}">🏠 Dashboard</a>
+    <a href="{{ url_for('view_students') }}">📋 Students</a>
+    <a href="{{ url_for('admin_logout') }}">🚪 Logout</a>
+</div>
+
+<div class="container">
+    <h2>📊 Election Results</h2>
+
+    {% for position, candidates in results_dict.items() %}
+        <h3>{{ position }}</h3>
+        <table>
+            <tr>
+                <th>Candidate</th>
+                <th>Image</th>
+                <th>Votes</th>
+            </tr>
+            {% for c in candidates %}
+            <tr>
+                <td>{{ c.name }}</td>
+                <td>
+                    {% if c.image %}
+                        <img src="{{ c.image }}" class="candidate-img" alt="{{ c.name }}">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>{{ c.votes }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% endfor %}
+</div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<style>
+  /* General body styling */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+  margin: 0;
+  padding: 30px;
+  color: #1e3a8a;
+}
+
+/* Container for table */
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 25px 30px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Heading */
+h2 {
+  text-align: center;
+  color: #1e3a8a;
+  margin-bottom: 25px;
+  font-size: 28px;
+  border-left: 6px solid #ff6b81;
+  padding-left: 12px;
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  background: #ffffff;
+}
+
+th, td {
+  padding: 14px 12px;
+  text-align: center;
+  font-size: 15px;
+}
+
+th {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  color: #fff;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+tr:nth-child(even) {
+  background-color: #f1f5f9;
+}
+
+tr:hover {
+  background-color: #e2e8f0;
+  transition: 0.3s;
+}
+
+/* Verified column styling */
+td:nth-child(5) {
+  font-weight: bold;
+  color: #10b981; /* green for yes */
+}
+
+td:nth-child(5):contains("No") {
+  color: #ef4444; /* red for no */
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+<h2>Registered Students</h2>
+<table border="1">
+<tr>
+  <th>Roll Number</th>
+  <th>Email</th>
+  <th>Branch</th>
+  <th>Year</th>
+  <th>Verified</th>
+</tr>
+{% for s in students %}
+<tr>
+  <td>{{ s.roll_number }}</td>
+  <td>{{ s.email }}</td>
+  <td>{{ s.branch }}</td>
+  <td>{{ s.year }}</td>
+  <td>{{ 'Yes' if s.is_verified else 'No' }}</td>
+</tr>
+{% endfor %}
+</table>

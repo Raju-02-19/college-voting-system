@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registered Students</title>
+    <style>
+        body { font-family: Arial, sans-serif; background:#f4f4f9; margin:0; }
+        .navbar { background:#11998e; padding:15px; text-align:center; }
+        .navbar a { color:white; margin:0 15px; text-decoration:none; font-weight:bold; }
+        .navbar a:hover { text-decoration:underline; }
+
+        table { 
+            border-collapse: collapse; 
+            width: 90%; 
+            margin: 30px auto; 
+            background:#fff; 
+            box-shadow:0 4px 12px rgba(0,0,0,0.1); 
+        }
+
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background:#11998e; color: white; }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+
+        .btn-update, .btn-delete {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+            transition: 0.3s ease;
+        }
+
+        .btn-update { background: #28a745; }
+        .btn-update:hover { background: #218838; }
+
+        .btn-delete { background: #dc3545; }
+        .btn-delete:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+    <!-- General Navbar -->
+    <div class="navbar">
+        <a href="{{ url_for('register') }}">📝 Student Registration</a>
+        <a href="{{ url_for('login') }}">👩‍🎓 Student Login</a>
+        <a href="{{ url_for('admin_login') }}">🛠️ Admin Login</a>
+    </div>
+
+    <h2>📋 Registered Students</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Roll Number</th>
+            <th>Email</th>
+            <th>Branch</th>
+            <th>Year</th>
+            <th>Verified</th>
+            <th>Actions</th>
+        </tr>
+        {% for s in students %}
+        <tr>
+            <form method="POST" action="{{ url_for('update_student', student_id=s.id) }}">
+                <td>{{ s.id }}</td>
+                <td><input type="text" name="roll_number" value="{{ s.roll_number }}"></td>
+                <td><input type="text" name="email" value="{{ s.email }}"></td>
+                <td><input type="text" name="branch" value="{{ s.branch }}"></td>
+                <td><input type="text" name="year" value="{{ s.year }}"></td>
+                <td>
+                    <select name="is_verified">
+                        <option value="True" {% if s.is_verified %}selected{% endif %}>✅ Yes</option>
+                        <option value="False" {% if not s.is_verified %}selected{% endif %}>❌ No</option>
+                    </select>
+                </td>
+                <td>
+                    <button type="submit" class="btn-update">Update</button>
+                    <a href="{{ url_for('delete_student', student_id=s.id) }}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this student?');">Delete</a>
+                </td>
+            </form>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

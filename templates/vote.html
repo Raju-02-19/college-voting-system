@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vote - College Voting System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/vote.css') }}">
+</head>
+<body>
+
+<div class="vote-container">
+    <h2>COLLEGE VOTING SYSTEM</h2>
+    <p>CAST YOUR VOTE - Electing 4 Members</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, msg in messages %}
+                <p class="flash-{{ category }}">{{ msg }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="post" class="vote-form">
+
+        {% for position, candidates in [("PRESIDENT", president_candidates),
+                                        ("VICE PRESIDENT", vice_president_candidates),
+                                        ("SECRETARY", secretary_candidates),
+                                        ("TREASURER", treasurer_candidates)] %}
+        <div class="position-card">
+            <h3>{{ position }}</h3>
+            <div class="candidates">
+                {% for c in candidates %}
+                <label class="candidate-option">
+                    {% if c.image %}
+                    <img src="{{ url_for('static', filename='images/' + c.image) }}" alt="{{ c.name }}">
+                    {% endif %}
+                    <span>{{ c.name }}</span>
+                    <input type="radio" name="{{ position|lower|replace(' ','_') }}" value="{{ c.name }}" required>
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn-submit">SUBMIT VOTES</button>
+    </form>
+</div>
+
+</body>
+</html>

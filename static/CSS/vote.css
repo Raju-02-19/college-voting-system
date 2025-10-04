@@ -1,0 +1,158 @@
+/* vote.css - Modern Voting UI with proper radio button */
+
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, #1f4037, #99f2c8);
+    margin: 0;
+    padding: 0;
+}
+
+/* Main Container */
+.vote-container {
+    max-width: 950px;
+    margin: 50px auto;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+}
+
+/* Heading */
+.vote-container h2 {
+    text-align: center;
+    color: #1b3b34;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.vote-container p {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: bold;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Position Card */
+.position-card {
+    margin-bottom: 40px;
+    border-radius: 12px;
+    padding: 25px;
+    background: linear-gradient(145deg, #e0f7f1, #d0ede7);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.position-card h3 {
+    margin-bottom: 20px;
+    color: #1b3b34;
+    font-size: 22px;
+    text-align: center;
+}
+
+/* Candidates Flex */
+.candidates {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+/* Candidate Option */
+.candidate-option {
+    flex: 1 1 150px;
+    max-width: 180px;
+    border-radius: 12px;
+    padding: 15px;
+    background: #ffffff;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.candidate-option:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    background: linear-gradient(145deg, #b0f0dc, #90e0c8);
+}
+
+/* Candidate Image */
+.candidate-option img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #1b3b34;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+}
+
+.candidate-option:hover img {
+    transform: scale(1.1);
+    border-color: #11998e;
+}
+
+/* Candidate Name */
+.candidate-option span {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 12px; /* more space below name */
+    color: #1b3b34;
+    font-size: 16px;
+}
+
+/* Radio Button */
+.candidate-option input[type="radio"] {
+    width: 22px;
+    height: 22px;
+    accent-color: #11998e;
+    margin-top: 5px;
+}
+
+/* Place radio below name and image */
+.candidate-option label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Submit Button */
+.btn-submit {
+    display: block;
+    width: 100%;
+    padding: 18px;
+    background: #11998e;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 18px;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    background: #0e7a6c;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .candidate-option {
+        flex: 1 1 45%;
+    }
+}
+
+@media (max-width: 480px) {
+    .candidate-option {
+        flex: 1 1 100%;
+    }
+}

@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <title>Register</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+</head>
+<body>
+  <!-- ADMIN LOGIN LINK TOP-RIGHT -->
+  <div class="admin-login">
+    <a href="{{ url_for('admin_login') }}">Admin Login</a>
+  </div>
+
+  <!-- REGISTRATION CARD -->
+  <div class="register-card">
+    <h2>Student Registration</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="flash flash-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="post" autocomplete="off">
+      <input type="text" name="roll_number" class="input-field" placeholder="Roll number" required autocomplete="off">
+      <input type="email" name="email" class="input-field" placeholder="Email" required autocomplete="off">
+      <input type="password" name="password" class="input-field" placeholder="Password (≥6, 1 uppercase)" required autocomplete="new-password">
+      <button class="btn-primary" type="submit">Send OTP</button>
+    </form>
+
+    <p>Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+  </div>
+</body>
+</html>

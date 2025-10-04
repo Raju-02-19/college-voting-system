@@ -1,0 +1,34 @@
+<head>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/candidates.css') }}">
+</head>
+<h2>Manage Candidates</h2>
+<h3>Add Candidate</h3>
+<form method="post" enctype="multipart/form-data">
+  <label>Name:</label>
+  <input type="text" name="name" required>
+  <label>Position:</label>
+  <select name="position" required>
+    <option>President</option>
+    <option>Vice President</option>
+    <option>Secretary</option>
+    <option>Treasurer</option>
+  </select>
+  <label>Image (optional):</label>
+  <input type="file" name="image">
+  <button type="submit">Add Candidate</button>
+</form>
+
+<h3>Existing Candidates</h3>
+<table border="1">
+<tr>
+  <th>Name</th><th>Position</th><th>Image</th><th>Action</th>
+</tr>
+{% for c in candidates %}
+<tr>
+  <td>{{ c.name }}</td>
+  <td>{{ c.position }}</td>
+  <td><img src="{{ url_for('static', filename='images/' ~ c.image) }}" width="50"></td>
+  <td><a href="{{ url_for('delete_candidate', candidate_id=c.id) }}" onclick="return confirm('Delete this candidate?')">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
