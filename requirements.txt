@@ -3,8 +3,8 @@ pip
 setuptools
 wheel
 
-# === Core Dependencies (Python 3.11 compatible) ===
-numpy==1.26.1
+# === Core Dependencies ===
+numpy==1.24.3
 scipy==1.11.3
 matplotlib==3.7.2
 pandas==2.1.0
@@ -108,5 +108,5 @@ xgboost==2.1.4
 yarl==1.15.2
 zipp==3.20.2
 
-# === Compatibility fix ===
+# === Compatibility Fixes ===
 pyparsing==3.0.9
