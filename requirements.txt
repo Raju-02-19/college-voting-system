@@ -10,6 +10,7 @@ matplotlib==3.7.2
 pandas==2.1.0
 h5py==3.9.0
 tensorflow==2.13.0
+tensorflow-intel==2.13.0
 
 # === Other Dependencies ===
 absl-py==2.3.0
@@ -74,6 +75,7 @@ protobuf==4.25.8
 pyasn1==0.6.1
 pyasn1_modules==0.4.2
 PyJWT==2.9.0
+pyparsing==3.0.9
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2025.2
@@ -99,7 +101,7 @@ threadpoolctl==3.5.0
 tifffile==2023.7.10
 tqdm==4.67.1
 twilio==9.7.2
-typing_extensions==4.13.2
+typing_extensions==4.5.0
 tzdata==2025.2
 urllib3==2.2.3
 Werkzeug==3.0.6
@@ -107,6 +109,3 @@ wrapt==1.17.2
 xgboost==2.1.4
 yarl==1.15.2
 zipp==3.20.2
-
-# === Compatibility Fixes ===
-pyparsing==3.0.9
