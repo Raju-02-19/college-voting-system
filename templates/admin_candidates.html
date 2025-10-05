@@ -1,34 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<link rel="stylesheet" href="{{ url_for('static', filename='css/candidates.css') }}">
+    <meta charset="UTF-8">
+    <title>Manage Candidates - College Voting</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/candidates.css') }}">
 </head>
-<h2>Manage Candidates</h2>
-<h3>Add Candidate</h3>
-<form method="post" enctype="multipart/form-data">
-  <label>Name:</label>
-  <input type="text" name="name" required>
-  <label>Position:</label>
-  <select name="position" required>
-    <option>President</option>
-    <option>Vice President</option>
-    <option>Secretary</option>
-    <option>Treasurer</option>
-  </select>
-  <label>Image (optional):</label>
-  <input type="file" name="image">
-  <button type="submit">Add Candidate</button>
-</form>
+<body>
 
-<h3>Existing Candidates</h3>
-<table border="1">
-<tr>
-  <th>Name</th><th>Position</th><th>Image</th><th>Action</th>
-</tr>
-{% for c in candidates %}
-<tr>
-  <td>{{ c.name }}</td>
-  <td>{{ c.position }}</td>
-  <td><img src="{{ url_for('static', filename='images/' ~ c.image) }}" width="50"></td>
-  <td><a href="{{ url_for('delete_candidate', candidate_id=c.id) }}" onclick="return confirm('Delete this candidate?')">Delete</a></td>
-</tr>
-{% endfor %}
-</table>
+<div class="navbar">
+    <a href="{{ url_for('admin_dashboard') }}">🏠 Dashboard</a>
+    <a href="{{ url_for('view_students') }}">🎓 Students</a>
+    <a href="{{ url_for('admin_results') }}">📊 Results</a>
+    <a href="{{ url_for('admin_logout') }}">🚪 Logout</a>
+</div>
+
+<div class="container">
+    <h2>📝 Manage Candidates</h2>
+
+    <!-- Add Candidate Form -->
+    <div class="form-section">
+        <h3>Add Candidate</h3>
+        <form method="post" enctype="multipart/form-data" class="candidate-form">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" name="name" id="name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="position">Position:</label>
+                <select name="position" id="position" required>
+                    <option value="President">President</option>
+                    <option value="Vice President">Vice President</option>
+                    <option value="Secretary">Secretary</option>
+                    <option value="Treasurer">Treasurer</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="image">Image (optional):</label>
+                <input type="file" name="image" id="image" accept="image/*">
+            </div>
+
+            <button type="submit" class="btn-add">Add Candidate</button>
+        </form>
+    </div>
+
+    <!-- Existing Candidates Table -->
+    <div class="table-section">
+        <h3>Existing Candidates</h3>
+        <table class="candidate-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Image</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in candidates %}
+                <tr>
+                    <td>{{ c.name }}</td>
+                    <td>{{ c.position }}</td>
+                    <td>
+                        {% if c.image %}
+                            <img src="{{ url_for('static', filename='images/' ~ c.image) }}" class="candidate-img" alt="{{ c.name }}">
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('delete_candidate', candidate_id=c.id) }}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this candidate?')">Delete</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4">No candidates added yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

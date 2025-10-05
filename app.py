@@ -9,12 +9,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# ---- Flask App Setup ----
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-# Database setup
+# ---- Database Setup ----
 instance_dir = os.path.join(basedir, "instance")
 os.makedirs(instance_dir, exist_ok=True)
 db_path = os.path.join(instance_dir, "database.db")
@@ -23,7 +24,7 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# Mail config
+# ---- Mail Setup ----
 app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER', 'smtp.gmail.com')
 app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT', 587))
 app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS', 'True').lower() in ("true","1","yes")
@@ -33,34 +34,36 @@ app.config['MAIL_PASSWORD'] = os.getenv("MAIL_PASSWORD")
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv("MAIL_DEFAULT_SENDER", app.config.get("MAIL_USERNAME"))
 mail = Mail(app)
 
-# Candidate image upload folder
+# ---- File Upload Setup ----
 UPLOAD_FOLDER = os.path.join(basedir, "static", "images")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 def allowed_file(filename):
-    return "." in filename and filename.rsplit(".",1)[1].lower() in ALLOWED_EXTENSIONS
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Load allowed students from Excel
+# ---- Load Allowed Students from Excel ----
 students_xlsx = os.path.join(basedir, "students.xlsx")
 if not os.path.exists(students_xlsx):
-    allowed_students = pd.DataFrame(columns=["roll_number","email","branch","year"])
+    allowed_students = pd.DataFrame(columns=["roll_number", "email", "branch", "year"])
 else:
     allowed_students = pd.read_excel(students_xlsx, dtype=str).fillna("")
     allowed_students.columns = allowed_students.columns.str.strip().str.lower()
     col_map = {}
     for col in allowed_students.columns:
-        if "roll" in col: col_map[col]="roll_number"
-        if "email" in col: col_map[col]="email"
-        if "branch" in col: col_map[col]="branch"
-        if "year" in col: col_map[col]="year"
-    if col_map: allowed_students = allowed_students.rename(columns=col_map)
-    for c in ["roll_number","email","branch","year"]:
-        if c not in allowed_students.columns: allowed_students[c] = ""
+        if "roll" in col: col_map[col] = "roll_number"
+        if "email" in col: col_map[col] = "email"
+        if "branch" in col: col_map[col] = "branch"
+        if "year" in col: col_map[col] = "year"
+    if col_map:
+        allowed_students = allowed_students.rename(columns=col_map)
+    for c in ["roll_number", "email", "branch", "year"]:
+        if c not in allowed_students.columns:
+            allowed_students[c] = ""
     allowed_students["roll_number"] = allowed_students["roll_number"].astype(str).str.strip().str.upper()
 
-# Models
+# ---- Database Models ----
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     roll_number = db.Column(db.String(50), unique=True, nullable=False)
@@ -82,33 +85,35 @@ class Candidate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     position = db.Column(db.String(100), nullable=False)
-    image = db.Column(db.String(200))  # optional image
+    image = db.Column(db.String(200))  # optional
 
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
 
+# ---- Initialize Admin ----
 with app.app_context():
     db.create_all()
     if not Admin.query.first():
         admin_username = os.getenv("ADMIN_USERNAME", "Raju")
         admin_password = os.getenv("ADMIN_PASSWORD", "Raju@02")
-        admin = Admin(
-            username=admin_username,
-            password_hash=generate_password_hash(admin_password)
-        )
+        admin = Admin(username=admin_username, password_hash=generate_password_hash(admin_password))
         db.session.add(admin)
         db.session.commit()
         print(f"Admin created: {admin_username}")
 
-# Helpers
-def normalize_roll(roll): return (roll or "").strip().upper()
-def valid_password(pw): return len(pw)>=6 and bool(re.search(r"[A-Z]", pw))
+# ---- Helper Functions ----
+def normalize_roll(roll):
+    return (roll or "").strip().upper()
 
-# ---- Student Routes ----
+def valid_password(pw):
+    return len(pw) >= 6 and bool(re.search(r"[A-Z]", pw))
+
+# ---------------- Student Routes ----------------
 @app.route("/")
-def home(): return redirect(url_for("register"))
+def home():
+    return redirect(url_for("register"))
 
 @app.route("/register", methods=["GET","POST"])
 def register():
@@ -129,22 +134,16 @@ def register():
         if Student.query.filter_by(roll_number=roll).first():
             flash("⚠️ Already registered","error")
             return redirect(url_for("register"))
-
         session["reg_roll"] = roll
         session["reg_email"] = email
         session["reg_password_hash"] = generate_password_hash(password)
         session["reg_branch"] = student_excel.iloc[0].get("branch","")
         session["reg_year"] = str(student_excel.iloc[0].get("year",""))
-
         otp = str(random.randint(1000,9999))
         session["otp"] = otp
         try:
             if app.config['MAIL_USERNAME'] and app.config['MAIL_PASSWORD']:
-                msg = Message(
-                    subject="Your College Voting OTP",
-                    recipients=[email],
-                    body=f"Your OTP is: {otp}"
-                )
+                msg = Message(subject="Your College Voting OTP", recipients=[email], body=f"Your OTP is: {otp}")
                 mail.send(msg)
                 flash("ℹ️ OTP sent to email","info")
             else:
@@ -158,7 +157,7 @@ def register():
 def verify():
     if request.method=="POST":
         otp_entered = request.form.get("otp","").strip()
-        if otp_entered == session.get("otp"):
+        if otp_entered==session.get("otp"):
             student = Student(
                 roll_number=session.get("reg_roll"),
                 email=session.get("reg_email"),
@@ -200,7 +199,7 @@ def logout():
     flash("✅ Logged out","success")
     return redirect(url_for("login"))
 
-# ---- Voting ----
+# ---------------- Voting Routes ----------------
 @app.route("/vote", methods=["GET","POST"])
 def vote():
     if "student_id" not in session:
@@ -235,8 +234,7 @@ def vote():
     secretary_candidates = Candidate.query.filter_by(position="Secretary").all()
     treasurer_candidates = Candidate.query.filter_by(position="Treasurer").all()
 
-    return render_template(
-        "vote.html",
+    return render_template("vote.html",
         president_candidates=president_candidates,
         vice_president_candidates=vice_president_candidates,
         secretary_candidates=secretary_candidates,
@@ -247,7 +245,7 @@ def vote():
 def thank_you():
     return render_template("thank_you.html")
 
-# ---- Admin ----
+# ---------------- Admin Routes ----------------
 @app.route("/admin/login", methods=["GET","POST"])
 def admin_login():
     if request.method=="POST":
@@ -267,7 +265,6 @@ def admin_logout():
     flash("✅ Admin logged out","success")
     return redirect(url_for("admin_login"))
 
-# ---- Admin Dashboard ----
 @app.route("/admin/dashboard")
 def admin_dashboard():
     if "admin_id" not in session:
@@ -275,110 +272,81 @@ def admin_dashboard():
         return redirect(url_for("admin_login"))
     return render_template("admin_dashboard.html")
 
-# ---- Admin: Results ----
-@app.route("/admin/results")
-def admin_results():
-    if "admin_id" not in session:
-        flash("⚠️ Admin login required","error")
-        return redirect(url_for("admin_login"))
-
-    positions = ["President", "Vice President", "Secretary", "Treasurer"]
-    results_dict = {}
-
-    for pos in positions:
-        candidates = Candidate.query.filter_by(position=pos).all()
-        vote_data = []
-        for c in candidates:
-            votes = Vote.query.filter(getattr(Vote, pos.lower().replace(" ","_")) == c.name).count()
-            vote_data.append({
-                "name": c.name,
-                "votes": votes,
-                "image": url_for("static", filename=f"images/{c.image}") if c.image else None
-            })
-        vote_data.sort(key=lambda x: x["votes"], reverse=True)
-        results_dict[pos] = vote_data
-
-    return render_template("results.html", results_dict=results_dict)
-
-# ---- Admin: Manage Candidates ----
-@app.route("/admin/candidates", methods=["GET","POST"])
-def manage_candidates():
-    if "admin_id" not in session:
-        flash("⚠️ Admin login required","error")
-        return redirect(url_for("admin_login"))
-
-    if request.method=="POST":
-        name = request.form.get("name").strip()
-        position = request.form.get("position").strip()
-        file = request.files.get("image")
-        if not name or not position:
-            flash("❌ Name and Position required","error")
-            return redirect(url_for("manage_candidates"))
-
-        filename = "default.png"
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
-
-        candidate = Candidate(name=name, position=position, image=filename)
-        db.session.add(candidate)
-        db.session.commit()
-        flash(f"✅ Candidate {name} added for {position}","success")
-        return redirect(url_for("manage_candidates"))
-
-    candidates = Candidate.query.all()
-    positions = ["President","Vice President","Secretary","Treasurer"]
-    return render_template("admin_candidates.html", candidates=candidates, positions=positions)
-
-@app.route("/admin/candidate/delete/<int:candidate_id>")
-def delete_candidate(candidate_id):
-    if "admin_id" not in session:
-        flash("⚠️ Admin login required","error")
-        return redirect(url_for("admin_login"))
-    candidate = Candidate.query.get_or_404(candidate_id)
-    db.session.delete(candidate)
-    db.session.commit()
-    flash(f"✅ Candidate {candidate.name} deleted","success")
-    return redirect(url_for("manage_candidates"))
-
-# ---- Admin: View & Edit Students ----
+# ----- View / Delete Students -----
 @app.route("/admin/students")
 def view_students():
     if "admin_id" not in session:
         flash("⚠️ Admin login required","error")
         return redirect(url_for("admin_login"))
     students = Student.query.all()
-    return render_template("students.html", students=students)
+    return render_template("admin_students.html", students=students)
 
-@app.route("/admin/student/update/<int:student_id>", methods=["POST"])
-def update_student(student_id):
-    if "admin_id" not in session:
-        flash("⚠️ Admin login required","error")
-        return redirect(url_for("admin_login"))
-
-    student = Student.query.get_or_404(student_id)
-    student.roll_number = request.form.get("roll_number").strip().upper()
-    student.email = request.form.get("email").strip().lower()
-    student.branch = request.form.get("branch").strip()
-    student.year = request.form.get("year").strip()
-    student.is_verified = True if request.form.get("is_verified") == "True" else False
-
-    db.session.commit()
-    flash(f"✅ Student {student.roll_number} updated successfully","success")
-    return redirect(url_for("view_students"))
-
-@app.route("/admin/student/delete/<int:student_id>")
+@app.route("/admin/students/delete/<int:student_id>")
 def delete_student(student_id):
     if "admin_id" not in session:
         flash("⚠️ Admin login required","error")
         return redirect(url_for("admin_login"))
-
     student = Student.query.get_or_404(student_id)
     db.session.delete(student)
     db.session.commit()
-    flash(f"✅ Student {student.roll_number} deleted","success")
+    flash("✅ Student deleted","success")
     return redirect(url_for("view_students"))
 
-# ---- Run App ----
+# ----- Manage Candidates -----
+@app.route("/admin/candidates", methods=["GET","POST"])
+def manage_candidates():
+    if "admin_id" not in session:
+        flash("⚠️ Admin login required","error")
+        return redirect(url_for("admin_login"))
+    if request.method=="POST":
+        name = request.form.get("name")
+        position = request.form.get("position")
+        image_file = request.files.get("image")
+        filename = None
+        if image_file and allowed_file(image_file.filename):
+            filename = secure_filename(image_file.filename)
+            image_file.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+        candidate = Candidate(name=name, position=position, image=filename)
+        db.session.add(candidate)
+        db.session.commit()
+        flash("✅ Candidate added","success")
+        return redirect(url_for("manage_candidates"))
+    candidates = Candidate.query.all()
+    return render_template("admin_candidates.html", candidates=candidates)
+
+@app.route("/admin/candidates/delete/<int:candidate_id>")
+def delete_candidate(candidate_id):
+    if "admin_id" not in session:
+        flash("⚠️ Admin login required","error")
+        return redirect(url_for("admin_login"))
+    candidate = Candidate.query.get_or_404(candidate_id)
+    if candidate.image:
+        img_path = os.path.join(app.config["UPLOAD_FOLDER"], candidate.image)
+        if os.path.exists(img_path):
+            os.remove(img_path)
+    db.session.delete(candidate)
+    db.session.commit()
+    flash("✅ Candidate deleted","success")
+    return redirect(url_for("manage_candidates"))
+
+# ----- View Results -----
+@app.route("/admin/results")
+def admin_results():
+    if "admin_id" not in session:
+        flash("⚠️ Admin login required","error")
+        return redirect(url_for("admin_login"))
+    results_dict = {}
+    positions = ["President","Vice President","Secretary","Treasurer"]
+    for pos in positions:
+        candidates = Candidate.query.filter_by(position=pos).all()
+        candidate_results = []
+        for c in candidates:
+            votes_count = Vote.query.filter(getattr(Vote,pos.lower().replace(" ","_"))==c.name).count()
+            candidate_results.append({"name":c.name,"votes":votes_count,"image":c.image})
+        results_dict[pos] = candidate_results
+    return render_template("results.html", results_dict=results_dict)
+
+# ---------------- Run App ----------------
 if __name__=="__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
