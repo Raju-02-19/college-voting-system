@@ -12,13 +12,10 @@ load_dotenv()
 # ---- Flask App Setup ----
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # ---- Database Setup ----
-instance_dir = os.path.join(basedir, "instance")
-os.makedirs(instance_dir, exist_ok=True)
-db_path = os.path.join(instance_dir, "database.db")
+db_path = os.path.join(basedir, "database.db")  # write in project folder
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
@@ -45,9 +42,7 @@ def allowed_file(filename):
 
 # ---- Load Allowed Students from Excel ----
 students_xlsx = os.path.join(basedir, "students.xlsx")
-if not os.path.exists(students_xlsx):
-    allowed_students = pd.DataFrame(columns=["roll_number", "email", "branch", "year"])
-else:
+if os.path.exists(students_xlsx):
     allowed_students = pd.read_excel(students_xlsx, dtype=str).fillna("")
     allowed_students.columns = allowed_students.columns.str.strip().str.lower()
     col_map = {}
@@ -62,6 +57,8 @@ else:
         if c not in allowed_students.columns:
             allowed_students[c] = ""
     allowed_students["roll_number"] = allowed_students["roll_number"].astype(str).str.strip().str.upper()
+else:
+    allowed_students = pd.DataFrame(columns=["roll_number", "email", "branch", "year"])
 
 # ---- Database Models ----
 class Student(db.Model):
@@ -127,6 +124,7 @@ def register():
         if not valid_password(password):
             flash("❌ Password must have 6+ chars and uppercase","error")
             return redirect(url_for("register"))
+
         student_excel = allowed_students[allowed_students["roll_number"]==roll]
         if student_excel.empty:
             flash("❌ Roll number not allowed","error")
@@ -134,22 +132,29 @@ def register():
         if Student.query.filter_by(roll_number=roll).first():
             flash("⚠️ Already registered","error")
             return redirect(url_for("register"))
+
+        # Save session for OTP
         session["reg_roll"] = roll
         session["reg_email"] = email
         session["reg_password_hash"] = generate_password_hash(password)
         session["reg_branch"] = student_excel.iloc[0].get("branch","")
         session["reg_year"] = str(student_excel.iloc[0].get("year",""))
+
+        # Generate OTP
         otp = str(random.randint(1000,9999))
         session["otp"] = otp
+
+        # Send OTP if possible, else flash it
         try:
-            if app.config['MAIL_USERNAME'] and app.config['MAIL_PASSWORD']:
+            if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
                 msg = Message(subject="Your College Voting OTP", recipients=[email], body=f"Your OTP is: {otp}")
                 mail.send(msg)
                 flash("ℹ️ OTP sent to email","info")
             else:
                 flash(f"ℹ️ Mail suppressed. OTP: {otp}","info")
         except Exception as e:
-            flash(f"❌ Error sending OTP: {e}","error")
+            flash(f"ℹ️ Unable to send email. OTP: {otp}","info")
+
         return redirect(url_for("verify"))
     return render_template("register.html")
 
@@ -177,6 +182,7 @@ def verify():
             return redirect(url_for("verify"))
     return render_template("otp.html")
 
+# ---------------- Login / Logout ----------------
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method=="POST":
