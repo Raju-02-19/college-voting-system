@@ -151,13 +151,13 @@ def register():
         # ---- Safe OTP Send with Threaded Mail ----
         def send_otp_email():
             try:
-                msg = Message(subject="Your College Voting OTP",
-                              recipients=[email],
-                              body=f"Your OTP is: {otp}")
-                mail.send(msg)
-                print("✅ OTP mail sent successfully")
+                with app.app_context():
+                    msg = Message('Your OTP', sender=app.config['MAIL_USERNAME'], recipients=[email])
+                    msg.body = f'Your OTP for registration is: {otp}'
+                   mail.send(msg)
             except Exception as e:
-                print("⚠️ MAIL ERROR:", e)
+                print(f"⚠️ MAIL ERROR: {e}")
+
 
         try:
             if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
