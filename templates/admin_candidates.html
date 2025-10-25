@@ -4,6 +4,234 @@
     <meta charset="UTF-8">
     <title>Manage Candidates - College Voting</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/candidates.css') }}">
+    <style>
+        /* Page Layout */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    background: linear-gradient(120deg, #283e51, #4375ab);
+    color: #ffffff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Navbar */
+.navbar {
+    width: 100%;
+    background: rgba(0,0,0,0.5);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: #fff200;
+    font-weight: 600;
+    padding: 8px 16px;
+    transition: 0.3s;
+    border-radius: 8px;
+}
+
+.navbar a:hover {
+    background: rgba(255, 242, 0, 0.2);
+    color: #ffffff;
+}
+
+/* Container */
+.container {
+    margin-top: 120px; /* space for navbar */
+    width: 90%;
+    max-width: 1100px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 40px;
+    border-radius: 16px;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+/* Headings */
+h2, h3 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #fff200;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+/* Form styles */
+form {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 35px;
+}
+
+form label {
+    margin: 10px 0 6px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+form input, form select {
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    margin-bottom: 18px;
+    transition: 0.3s;
+}
+
+form input {
+    background: rgba(255,255,255,0.18);
+    color: #ffffff;
+}
+
+form select {
+    background: rgba(165, 165, 165, 0.3);
+    color: #ffffff;
+    cursor: pointer;
+}
+
+form input::placeholder {
+    color: #bbbbbb;
+}
+
+form input:focus, form select:focus {
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 10px #ffca28;
+    color: #000000;
+}
+
+form button {
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #ff512f, #dd2476);
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+form button:hover {
+    background: linear-gradient(90deg, #dd2476, #ff512f);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.35);
+}
+
+/* Table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+table th, table td {
+    padding: 16px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    font-size: 15px;
+}
+
+table th {
+    background: rgba(0,0,0,0.45);
+    color: #ffca28;
+    font-weight: bold;
+}
+
+table tr:hover {
+    background: rgba(255,255,255,0.12);
+    transition: 0.3s;
+}
+
+/* Candidate images */
+table img {
+    width: 60px;
+    height: 60px;
+    border-radius: 10px;
+    border: 2px solid #ffca28;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.45);
+    object-fit: cover;
+}
+
+/* Delete link */
+table a {
+    color: #ff5252;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+table a:hover {
+    color: #ff1744;
+    text-decoration: underline;
+}
+
+/* Flash messages */
+.flash {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffca28;
+    padding: 14px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    animation: flashFade 3s forwards;
+}
+
+@keyframes flashFade {
+    0% {opacity: 1;}
+    80% {opacity: 1;}
+    100% {opacity: 0;}
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(25px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        padding: 25px;
+    }
+
+    form input, form select, form button {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    table th, table td {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    table img {
+        width: 50px;
+        height: 50px;
+    }
+}
+    </style>
 </head>
 <body>
 

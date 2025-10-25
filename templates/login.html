@@ -3,6 +3,116 @@
 <head>
   <title>Login</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+  <style>
+    /* Body styles */
+    /* BODY STYLING */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #89f7fe, #66a6ff); /* vibrant gradient */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* LOGIN CARD */
+.login-card {
+  background: #ffffff;
+  padding: 40px 35px;
+  border-radius: 20px;
+  width: 380px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  border-top: 6px solid #667eea; /* colored accent */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+}
+
+/* HEADING */
+.login-card h2 {
+  margin-bottom: 25px;
+  color: #1e3a8a;
+  font-weight: 700;
+  letter-spacing: 1px;
+  position: relative;
+}
+
+.login-card h2::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  margin: 8px auto 0;
+  border-radius: 2px;
+}
+
+/* INPUT FIELDS */
+.input-field {
+  width: 100%;
+  padding: 14px 12px;
+  margin: 15px 0;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  font-size: 15px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-field:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 8px rgba(102,126,234,0.4);
+}
+
+/* BUTTONS */
+.btn-primary {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  color: #fff;
+  padding: 14px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  letter-spacing: 1px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #764ba2, #667eea);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+}
+
+/* FLASH MESSAGES */
+.flash {
+  background: #dbeafe;
+  color: #1e3a8a;
+  border-left: 6px solid #667eea;
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-weight: 600;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+  animation: flashFade 3s ease forwards;
+}
+
+.flash-error { background: #fee2e2; color: #b91c1c; border-left-color: #ef4444; }
+.flash-success { background: #d1fae5; color: #065f46; border-left-color: #10b981; }
+.flash-info { background: #e0f2fe; color: #0c4a6e; border-left-color: #3b82f6; }
+
+@keyframes flashFade {
+  0% {opacity: 1;}
+  80% {opacity: 1;}
+  100% {opacity: 0;}
+}
+  </style>
 </head>
 <body>
   <div class="login-card">
