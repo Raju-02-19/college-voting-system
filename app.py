@@ -4,7 +4,7 @@ from flask_migrate import Migrate
 from flask_mail import Mail, Message
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-import os, random, pandas as pd, re
+import os, random, pandas as pd, re, threading
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -120,7 +120,7 @@ def home():
 
 @app.route("/register", methods=["GET","POST"])
 def register():
-    allowed_students = load_allowed_students()  # Lazy load
+    allowed_students = load_allowed_students()
     if request.method=="POST":
         roll = normalize_roll(request.form.get("roll_number"))
         email = request.form.get("email","").strip().lower()
@@ -139,30 +139,37 @@ def register():
             flash("⚠️ Already registered","error")
             return redirect(url_for("register"))
 
-        # Save session for OTP
         session["reg_roll"] = roll
         session["reg_email"] = email
         session["reg_password_hash"] = generate_password_hash(password)
         session["reg_branch"] = student_excel.iloc[0].get("branch","")
         session["reg_year"] = str(student_excel.iloc[0].get("year",""))
 
-        # Generate OTP
         otp = str(random.randint(1000,9999))
         session["otp"] = otp
 
-        # --- Safe OTP send with mail error handling ---
-        try:
-            if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
+        # ---- Safe OTP Send with Threaded Mail ----
+        def send_otp_email():
+            try:
                 msg = Message(subject="Your College Voting OTP",
                               recipients=[email],
                               body=f"Your OTP is: {otp}")
                 mail.send(msg)
-                flash("ℹ️ OTP sent to email","info")
+                print("✅ OTP mail sent successfully")
+            except Exception as e:
+                print("⚠️ MAIL ERROR:", e)
+
+        try:
+            if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
+                thread = threading.Thread(target=send_otp_email)
+                thread.daemon = True
+                thread.start()
+                flash("ℹ️ OTP sent to your email","info")
             else:
-                flash(f"ℹ️ OTP (Debug): {otp}","info")  # fallback if no mail credentials
+                flash(f"ℹ️ OTP (Debug Mode): {otp}","info")
         except Exception as e:
-            print("MAIL ERROR:", e)
-            flash(f"⚠️ Mail failed. Debug OTP: {otp}","info")  # fallback if mail fails
+            print("MAIL THREAD ERROR:", e)
+            flash(f"ℹ️ OTP (Debug): {otp}","info")
 
         return redirect(url_for("verify"))
     return render_template("register.html")
