@@ -37,10 +37,8 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
-
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
 
 # ---- Lazy Load Excel ----
 def load_allowed_students():
@@ -67,7 +65,6 @@ def load_allowed_students():
         return df
     return pd.DataFrame(columns=["roll_number", "email", "branch", "year"])
 
-
 # ---- Database Models ----
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -78,7 +75,6 @@ class Student(db.Model):
     year = db.Column(db.String(50))
     is_verified = db.Column(db.Boolean, default=False)
 
-
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     roll_number = db.Column(db.String(50), unique=True, nullable=False)
@@ -87,19 +83,16 @@ class Vote(db.Model):
     secretary = db.Column(db.String(100), nullable=False)
     treasurer = db.Column(db.String(100), nullable=False)
 
-
 class Candidate(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
     position = db.Column(db.String(100), nullable=False)
     image = db.Column(db.String(200))  # optional
 
-
 class Admin(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-
 
 # ---- Initialize Admin ----
 with app.app_context():
@@ -112,27 +105,22 @@ with app.app_context():
         db.session.commit()
         print(f"Admin created: {admin_username}")
 
-
 # ---- Helper Functions ----
 def normalize_roll(roll):
     return (roll or "").strip().upper()
 
-
 def valid_password(pw):
     return len(pw) >= 6 and bool(re.search(r"[A-Z]", pw))
-
 
 # ---- Serve Static (fix Render CSS 404) ----
 @app.route('/static/<path:filename>')
 def custom_static(filename):
     return send_from_directory(app.static_folder, filename)
 
-
 # ---------------- Student Routes ----------------
 @app.route("/")
 def home():
     return redirect(url_for("register"))
-
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -194,7 +182,6 @@ def register():
 
     return render_template("register.html")
 
-
 @app.route("/verify", methods=["GET", "POST"])
 def verify():
     if request.method == "POST":
@@ -219,7 +206,6 @@ def verify():
             return redirect(url_for("verify"))
     return render_template("otp.html")
 
-
 # ---------------- Login / Logout ----------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -236,14 +222,12 @@ def login():
         return redirect(url_for("login"))
     return render_template("login.html")
 
-
 @app.route("/logout")
 def logout():
     session.pop("student_id", None)
     session.pop("roll_number", None)
     flash("✅ Logged out", "success")
     return redirect(url_for("login"))
-
 
 # ---------------- Voting Routes ----------------
 @app.route("/vote", methods=["GET", "POST"])
@@ -287,11 +271,9 @@ def vote():
                            treasurer_candidates=treasurer_candidates
                            )
 
-
 @app.route("/thank_you")
 def thank_you():
     return render_template("thank_you.html")
-
 
 # ---------------- Admin Routes ----------------
 @app.route("/admin/login", methods=["GET", "POST"])
@@ -307,13 +289,11 @@ def admin_login():
         flash("❌ Invalid admin credentials", "error")
     return render_template("admin_login.html")
 
-
 @app.route("/admin/logout")
 def admin_logout():
     session.pop("admin_id", None)
     flash("✅ Admin logged out", "success")
     return redirect(url_for("admin_login"))
-
 
 @app.route("/admin/dashboard")
 def admin_dashboard():
@@ -322,7 +302,6 @@ def admin_dashboard():
         return redirect(url_for("admin_login"))
     return render_template("admin_dashboard.html")
 
-
 @app.route("/admin/students")
 def view_students():
     if "admin_id" not in session:
@@ -330,7 +309,6 @@ def view_students():
         return redirect(url_for("admin_login"))
     students = Student.query.all()
     return render_template("admin_students.html", students=students)
-
 
 @app.route("/admin/students/delete/<int:student_id>")
 def delete_student(student_id):
@@ -342,7 +320,6 @@ def delete_student(student_id):
     db.session.commit()
     flash("✅ Student deleted", "success")
     return redirect(url_for("view_students"))
-
 
 @app.route("/admin/candidates", methods=["GET", "POST"])
 def manage_candidates():
@@ -365,7 +342,6 @@ def manage_candidates():
     candidates = Candidate.query.all()
     return render_template("admin_candidates.html", candidates=candidates)
 
-
 @app.route("/admin/candidates/delete/<int:candidate_id>")
 def delete_candidate(candidate_id):
     if "admin_id" not in session:
@@ -380,7 +356,6 @@ def delete_candidate(candidate_id):
     db.session.commit()
     flash("✅ Candidate deleted", "success")
     return redirect(url_for("manage_candidates"))
-
 
 @app.route("/admin/results")
 def admin_results():
@@ -397,7 +372,6 @@ def admin_results():
             candidate_results.append({"name": c.name, "votes": votes_count, "image": c.image})
         results_dict[pos] = candidate_results
     return render_template("results.html", results_dict=results_dict)
-
 
 # ---------------- Run App MAIN ----------------
 if __name__ == "__main__":
