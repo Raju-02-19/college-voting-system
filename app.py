@@ -356,7 +356,7 @@ def admin_results():
         results_dict[pos] = candidate_results
     return render_template("results.html", results_dict=results_dict)
 
-# ---------------- Run App ----------------
+# ---------------- Run App MAIN----------------
 if __name__=="__main__":
     port = int(os.environ.get("PORT", 5000))
     debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"
