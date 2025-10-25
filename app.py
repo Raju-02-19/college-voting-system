@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
@@ -15,7 +15,7 @@ app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # ---- Database Setup ----
-db_path = os.path.join(basedir, "database.db")  # write in project folder
+db_path = os.path.join(basedir, "database.db")
 app.config["SQLALCHEMY_DATABASE_URI"] = f"sqlite:///{db_path}"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
@@ -40,25 +40,26 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# ---- Load Allowed Students from Excel ----
-students_xlsx = os.path.join(basedir, "students.xlsx")
-if os.path.exists(students_xlsx):
-    allowed_students = pd.read_excel(students_xlsx, dtype=str).fillna("")
-    allowed_students.columns = allowed_students.columns.str.strip().str.lower()
-    col_map = {}
-    for col in allowed_students.columns:
-        if "roll" in col: col_map[col] = "roll_number"
-        if "email" in col: col_map[col] = "email"
-        if "branch" in col: col_map[col] = "branch"
-        if "year" in col: col_map[col] = "year"
-    if col_map:
-        allowed_students = allowed_students.rename(columns=col_map)
-    for c in ["roll_number", "email", "branch", "year"]:
-        if c not in allowed_students.columns:
-            allowed_students[c] = ""
-    allowed_students["roll_number"] = allowed_students["roll_number"].astype(str).str.strip().str.upper()
-else:
-    allowed_students = pd.DataFrame(columns=["roll_number", "email", "branch", "year"])
+# ---- Lazy Load Excel ----
+def load_allowed_students():
+    students_xlsx = os.path.join(basedir, "students.xlsx")
+    if os.path.exists(students_xlsx):
+        df = pd.read_excel(students_xlsx, dtype=str).fillna("")
+        df.columns = df.columns.str.strip().str.lower()
+        col_map = {}
+        for col in df.columns:
+            if "roll" in col: col_map[col] = "roll_number"
+            if "email" in col: col_map[col] = "email"
+            if "branch" in col: col_map[col] = "branch"
+            if "year" in col: col_map[col] = "year"
+        if col_map:
+            df = df.rename(columns=col_map)
+        for c in ["roll_number", "email", "branch", "year"]:
+            if c not in df.columns:
+                df[c] = ""
+        df["roll_number"] = df["roll_number"].astype(str).str.strip().str.upper()
+        return df
+    return pd.DataFrame(columns=["roll_number", "email", "branch", "year"])
 
 # ---- Database Models ----
 class Student(db.Model):
@@ -107,6 +108,11 @@ def normalize_roll(roll):
 def valid_password(pw):
     return len(pw) >= 6 and bool(re.search(r"[A-Z]", pw))
 
+# ---- Serve Static (fix Render CSS 404) ----
+@app.route('/static/<path:filename>')
+def custom_static(filename):
+    return send_from_directory(app.static_folder, filename)
+
 # ---------------- Student Routes ----------------
 @app.route("/")
 def home():
@@ -114,6 +120,7 @@ def home():
 
 @app.route("/register", methods=["GET","POST"])
 def register():
+    allowed_students = load_allowed_students()  # Lazy load
     if request.method=="POST":
         roll = normalize_roll(request.form.get("roll_number"))
         email = request.form.get("email","").strip().lower()
@@ -124,7 +131,6 @@ def register():
         if not valid_password(password):
             flash("❌ Password must have 6+ chars and uppercase","error")
             return redirect(url_for("register"))
-
         student_excel = allowed_students[allowed_students["roll_number"]==roll]
         if student_excel.empty:
             flash("❌ Roll number not allowed","error")
@@ -144,16 +150,17 @@ def register():
         otp = str(random.randint(1000,9999))
         session["otp"] = otp
 
-        # Send OTP if possible, else flash it
+        # Safe OTP send
         try:
             if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
                 msg = Message(subject="Your College Voting OTP", recipients=[email], body=f"Your OTP is: {otp}")
                 mail.send(msg)
                 flash("ℹ️ OTP sent to email","info")
             else:
-                flash(f"ℹ️ Mail suppressed. OTP: {otp}","info")
+                flash(f"ℹ️ OTP (Debug): {otp}","info")
         except Exception as e:
-            flash(f"ℹ️ Unable to send email. OTP: {otp}","info")
+            print("MAIL ERROR:", e)
+            flash(f"ℹ️ OTP (Debug): {otp}","info")
 
         return redirect(url_for("verify"))
     return render_template("register.html")
@@ -278,7 +285,6 @@ def admin_dashboard():
         return redirect(url_for("admin_login"))
     return render_template("admin_dashboard.html")
 
-# ----- View / Delete Students -----
 @app.route("/admin/students")
 def view_students():
     if "admin_id" not in session:
@@ -298,7 +304,6 @@ def delete_student(student_id):
     flash("✅ Student deleted","success")
     return redirect(url_for("view_students"))
 
-# ----- Manage Candidates -----
 @app.route("/admin/candidates", methods=["GET","POST"])
 def manage_candidates():
     if "admin_id" not in session:
@@ -335,7 +340,6 @@ def delete_candidate(candidate_id):
     flash("✅ Candidate deleted","success")
     return redirect(url_for("manage_candidates"))
 
-# ----- View Results -----
 @app.route("/admin/results")
 def admin_results():
     if "admin_id" not in session:
