@@ -150,17 +150,19 @@ def register():
         otp = str(random.randint(1000,9999))
         session["otp"] = otp
 
-        # Safe OTP send
+        # --- Safe OTP send with mail error handling ---
         try:
             if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
-                msg = Message(subject="Your College Voting OTP", recipients=[email], body=f"Your OTP is: {otp}")
+                msg = Message(subject="Your College Voting OTP",
+                              recipients=[email],
+                              body=f"Your OTP is: {otp}")
                 mail.send(msg)
                 flash("ℹ️ OTP sent to email","info")
             else:
-                flash(f"ℹ️ OTP (Debug): {otp}","info")
+                flash(f"ℹ️ OTP (Debug): {otp}","info")  # fallback if no mail credentials
         except Exception as e:
             print("MAIL ERROR:", e)
-            flash(f"ℹ️ OTP (Debug): {otp}","info")
+            flash(f"⚠️ Mail failed. Debug OTP: {otp}","info")  # fallback if mail fails
 
         return redirect(url_for("verify"))
     return render_template("register.html")
