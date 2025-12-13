@@ -77,13 +77,7 @@ def load_allowed_students():
 
     df["roll_number"] = df["roll_number"].str.upper().str.strip()
     return df
-# ================== CACHE INIT ==================
-ALLOWED_STUDENTS_CACHE = None
 
-@app.before_first_request
-def init_cache():
-    global ALLOWED_STUDENTS_CACHE
-    ALLOWED_STUDENTS_CACHE = load_allowed_students()
 
 # ---------------- Models ----------------
 class Student(db.Model):
@@ -140,6 +134,11 @@ def home():
 # -------- Register --------
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    global ALLOWED_STUDENTS_CACHE
+
+    if ALLOWED_STUDENTS_CACHE is None:
+        ALLOWED_STUDENTS_CACHE = load_allowed_students()
+
     allowed_students = ALLOWED_STUDENTS_CACHE
 
 
