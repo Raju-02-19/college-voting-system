@@ -9,7 +9,7 @@ import os
 import random
 import pandas as pd
 import re
-ALLOWED_STUDENTS_CACHE = load_allowed_students()
+
 
 # ---------------- Load ENV ----------------
 load_dotenv()
@@ -75,6 +75,7 @@ def load_allowed_students():
 
     df["roll_number"] = df["roll_number"].str.upper().str.strip()
     return df
+ALLOWED_STUDENTS_CACHE = load_allowed_students()
 
 # ---------------- Models ----------------
 class Student(db.Model):
