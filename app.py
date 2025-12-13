@@ -157,28 +157,23 @@ def register():
         session["otp"] = otp
 
         # ---- Safe OTP Send with Threaded Mail ----
-        def send_otp_email():
-            try:
-                with app.app_context():
-                    msg = Message('Your OTP', sender=app.config['MAIL_USERNAME'], recipients=[email])
-                    msg.body = f'Your OTP for registration is: {otp}'
-                    mail.send(msg)
-            except Exception as e:
-                print(f"⚠️ MAIL ERROR: {e}")
+       try:
+    msg = Message(
+        subject="OTP Verification",
+        sender=app.config["MAIL_USERNAME"],
+        recipients=[email]
+    )
+    msg.body = f"Your OTP is: {otp}"
+    mail.send(msg)
 
-        try:
-            if app.config.get('MAIL_USERNAME') and app.config.get('MAIL_PASSWORD'):
-                thread = threading.Thread(target=send_otp_email)
-                thread.daemon = True
-                thread.start()
-                flash("ℹ️ OTP sent to your email", "info")
-            else:
-                flash(f"ℹ️ OTP (Debug Mode): {otp}", "info")
-        except Exception as e:
-            print("MAIL THREAD ERROR:", e)
-            flash(f"ℹ️ OTP (Debug): {otp}", "info")
+    flash("OTP sent to your email", "success")
+    return redirect(url_for("verify"))
 
-        return redirect(url_for("verify"))
+except Exception as e:
+    print("EMAIL ERROR:", e)
+    flash("Failed to send OTP. Please try again.", "error")
+    return redirect(url_for("register"))
+
 
     return render_template("register.html")
 
