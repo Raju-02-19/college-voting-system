@@ -9,6 +9,7 @@ import os
 import random
 import pandas as pd
 import re
+ALLOWED_STUDENTS_CACHE = load_allowed_students()
 
 # ---------------- Load ENV ----------------
 load_dotenv()
@@ -130,7 +131,8 @@ def home():
 # -------- Register --------
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    allowed_students = load_allowed_students()
+    allowed_students = ALLOWED_STUDENTS_CACHE
+
 
     if request.method == "POST":
         roll = normalize_roll(request.form.get("roll_number"))
