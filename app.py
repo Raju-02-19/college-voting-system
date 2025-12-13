@@ -48,6 +48,8 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # ---------------- Excel Loader ----------------
+
+
 def load_allowed_students():
     path = os.path.join(basedir, "students.xlsx")
     if not os.path.exists(path):
@@ -75,7 +77,13 @@ def load_allowed_students():
 
     df["roll_number"] = df["roll_number"].str.upper().str.strip()
     return df
-ALLOWED_STUDENTS_CACHE = load_allowed_students()
+# ================== CACHE INIT ==================
+ALLOWED_STUDENTS_CACHE = None
+
+@app.before_first_request
+def init_cache():
+    global ALLOWED_STUDENTS_CACHE
+    ALLOWED_STUDENTS_CACHE = load_allowed_students()
 
 # ---------------- Models ----------------
 class Student(db.Model):
