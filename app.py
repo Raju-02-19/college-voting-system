@@ -13,12 +13,23 @@ import re
 load_dotenv()
 
 # ---------------- MongoDB Setup ----------------
-mongo_uri = os.getenv("MONGO_URI", "").replace("\n", "").strip()
+# ---------------- MongoDB Setup ----------------
+mongo_uri = os.getenv("MONGO_URI", "").strip()
+
+if not mongo_uri.startswith("mongodb"):
+    raise RuntimeError("❌ MONGO_URI is missing or invalid")
 
 client = MongoClient(
     mongo_uri,
-    serverSelectionTimeoutMS=5000
+    serverSelectionTimeoutMS=3000,
+    connectTimeoutMS=3000
 )
+
+try:
+    client.admin.command("ping")
+    print("✅ MongoDB connected successfully")
+except Exception as e:
+    print("❌ MongoDB connection failed:", e)
 
 db = client["college_voting"]
 
@@ -26,6 +37,7 @@ students_col = db["students"]
 admins_col = db["admins"]
 candidates_col = db["candidates"]
 votes_col = db["votes"]
+
 
 # ---------------- App Setup ----------------
 app = Flask(__name__, static_folder="static", template_folder="templates")
