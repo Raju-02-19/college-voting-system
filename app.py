@@ -7,7 +7,6 @@ from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import os
 import random
-import pandas as pd
 import re
 
 
@@ -46,39 +45,6 @@ ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
-
-ALLOWED_STUDENTS_CACHE = None
-# ---------------- Excel Loader ----------------
-
-
-def load_allowed_students():
-    path = os.path.join(basedir, "students.xlsx")
-    if not os.path.exists(path):
-        return pd.DataFrame(columns=["roll_number", "email", "branch", "year"])
-
-    df = pd.read_excel(path, dtype=str).fillna("")
-    df.columns = df.columns.str.lower().str.strip()
-
-    col_map = {}
-    for col in df.columns:
-        if "roll" in col:
-            col_map[col] = "roll_number"
-        if "email" in col:
-            col_map[col] = "email"
-        if "branch" in col:
-            col_map[col] = "branch"
-        if "year" in col:
-            col_map[col] = "year"
-
-    df = df.rename(columns=col_map)
-
-    for c in ["roll_number", "email", "branch", "year"]:
-        if c not in df.columns:
-            df[c] = ""
-
-    df["roll_number"] = df["roll_number"].str.upper().str.strip()
-    return df
-
 
 # ---------------- Models ----------------
 class Student(db.Model):
@@ -121,11 +87,43 @@ with app.app_context():
         db.session.commit()
 
 # ---------------- Helpers ----------------
+# ---------------- Helpers ----------------
 def normalize_roll(roll):
     return (roll or "").strip().upper()
 
 def valid_password(pw):
     return len(pw) >= 6 and bool(re.search(r"[A-Z]", pw))
+
+
+def generate_rolls(input_text):
+    rolls = set()
+    items = input_text.replace("\n", ",").split(",")
+
+    for item in items:
+        item = item.strip()
+        if not item:
+            continue
+
+        if item.startswith("!"):
+            rolls.discard(item[1:].upper())
+            continue
+
+        if "-" in item:
+            start, end = item.split("-")
+            start = start.strip().upper()
+            end = end.strip().upper()
+
+            prefix = re.match(r"(.*?)(\d+)$", start).group(1)
+            s_num = int(re.search(r"\d+$", start).group())
+            e_num = int(re.search(r"\d+$", end).group())
+
+            for i in range(s_num, e_num + 1):
+                rolls.add(f"{prefix}{i}")
+        else:
+            rolls.add(item.upper())
+
+    return sorted(rolls)
+
 
 # ---------------- Routes ----------------
 @app.route("/")
@@ -135,14 +133,6 @@ def home():
 # -------- Register --------
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    global ALLOWED_STUDENTS_CACHE
-
-    if ALLOWED_STUDENTS_CACHE is None:
-        ALLOWED_STUDENTS_CACHE = load_allowed_students()
-
-    allowed_students = ALLOWED_STUDENTS_CACHE
-
-
     if request.method == "POST":
         roll = normalize_roll(request.form.get("roll_number"))
         email = request.form.get("email", "").strip().lower()
@@ -156,16 +146,20 @@ def register():
             flash("❌ Password must contain uppercase & 6+ chars", "error")
             return redirect(url_for("register"))
 
-        if allowed_students[allowed_students["roll_number"] == roll].empty:
-            flash("❌ Roll number not allowed", "error")
+        student = Student.query.filter_by(roll_number=roll).first()
+
+        # ❌ student not added by admin
+        if not student:
+            flash("❌ Roll number not found. Contact admin.", "error")
             return redirect(url_for("register"))
 
-        if Student.query.filter_by(roll_number=roll).first():
-            flash("⚠️ Already registered", "error")
-            return redirect(url_for("register"))
+        # ❌ already verified
+        if student.is_verified:
+            flash("⚠️ Already registered. Please login.", "error")
+            return redirect(url_for("login"))
 
-        session["reg_roll"] = roll
-        session["reg_email"] = email
+        # store in session
+        session["reg_student_id"] = student.id
         session["reg_password_hash"] = generate_password_hash(password)
 
         otp = str(random.randint(1000, 9999))
@@ -187,26 +181,45 @@ def register():
 
     return render_template("register.html")
 
+
 # -------- Verify --------
 @app.route("/verify", methods=["GET", "POST"])
 def verify():
-    if request.method == "POST":
-        if request.form.get("otp") == session.get("otp"):
-            student = Student(
-                roll_number=session["reg_roll"],
-                email=session["reg_email"],
-                password_hash=session["reg_password_hash"],
-                is_verified=True
-            )
-            db.session.add(student)
-            db.session.commit()
-            session.clear()
-            flash("✅ Verified! Login now", "success")
-            return redirect(url_for("login"))
+    # Session check
+    if "otp" not in session or "reg_student_id" not in session or "reg_password_hash" not in session:
+        flash("❌ Session expired. Please register again.", "error")
+        session.clear()
+        return redirect(url_for("register"))
 
-        flash("❌ Invalid OTP", "error")
+    if request.method == "POST":
+        entered_otp = request.form.get("otp")
+
+        # OTP validation
+        if entered_otp != session.get("otp"):
+            flash("❌ Invalid OTP", "error")
+            return redirect(url_for("verify"))
+
+        # Fetch student using ID (BEST PRACTICE)
+        student = Student.query.get(session["reg_student_id"])
+
+        if not student:
+            flash("❌ Student record not found", "error")
+            session.clear()
+            return redirect(url_for("register"))
+
+        # Update student
+        student.password_hash = session["reg_password_hash"]
+        student.is_verified = True
+
+        db.session.commit()
+        session.clear()
+
+        flash("✅ Registration successful! Please login.", "success")
+        return redirect(url_for("login"))
 
     return render_template("otp.html")
+
+
 
 # -------- Login --------
 @app.route("/login", methods=["GET", "POST"])
@@ -337,6 +350,53 @@ def delete_candidate(id):
     flash("🗑 Candidate deleted", "success")
     return redirect(url_for("manage_candidates"))
 
+#-------- Add Students --------#
+@app.route("/admin/add-student", methods=["GET", "POST"])
+def admin_add_student():
+    if "admin_id" not in session:
+        return redirect(url_for("admin_login"))
+
+    if request.method == "POST":
+        year = request.form.get("year")
+        branch = request.form.get("branch")
+        roll_numbers = request.form.get("roll_numbers")
+
+        if not year or not branch or not roll_numbers:
+            flash("❌ All fields are required", "error")
+            return redirect(url_for("admin_add_student"))
+
+        # ✅ NEW: generate rolls from range + exclude
+        roll_list = generate_rolls(roll_numbers)
+
+        added = 0
+        skipped = 0
+
+        for roll in roll_list:
+            if Student.query.filter_by(roll_number=roll).first():
+                skipped += 1
+                continue
+
+            student = Student(
+                roll_number=roll,
+                email="",               # set during student registration
+                password_hash="TEMP",   # replaced after OTP
+                branch=branch,
+                year=year,
+                is_verified=False
+            )
+            db.session.add(student)
+            added += 1
+
+        db.session.commit()
+
+        flash(
+            f"✅ Added {added} students | ⚠️ Skipped {skipped} existing",
+            "success"
+        )
+        return redirect(url_for("view_students"))
+
+    return render_template("admin_add_students.html")
+
 # -------- STUDENTS (FIX ADDED) --------
 @app.route("/admin/students")
 def view_students():
@@ -363,13 +423,41 @@ def admin_results():
         return redirect(url_for("admin_login"))
 
     results = {}
-    for pos in ["president", "vice_president", "secretary", "treasurer"]:
-        results[pos] = db.session.query(
-            getattr(Vote, pos),
-            db.func.count(getattr(Vote, pos))
-        ).group_by(getattr(Vote, pos)).all()
+
+    mapping = {
+        "president": "President",
+        "vice_president": "Vice President",
+        "secretary": "Secretary",
+        "treasurer": "Treasurer"
+    }
+
+    for pos, pos_name in mapping.items():
+        vote_data = (
+            db.session.query(
+                getattr(Vote, pos),
+                db.func.count(Vote.id)
+            )
+            .group_by(getattr(Vote, pos))
+            .all()
+        )
+
+        enriched = []
+        for name, count in vote_data:
+            candidate = Candidate.query.filter_by(
+                name=name,
+                position=pos_name
+            ).first()
+
+            enriched.append({
+                "name": name,
+                "count": count,
+                "image": candidate.image if candidate else None
+            })
+
+        results[pos_name] = enriched
 
     return render_template("results.html", results=results)
+
 
 @app.route("/admin/logout")
 def admin_logout():
