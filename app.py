@@ -13,10 +13,11 @@ import re
 load_dotenv()
 
 # ---------------- MongoDB Setup ----------------
+mongo_uri = os.getenv("MONGO_URI", "").replace("\n", "").strip()
+
 client = MongoClient(
-    os.getenv("MONGO_URI"),
-    tls=True,
-    tlsAllowInvalidCertificates=True
+    mongo_uri,
+    serverSelectionTimeoutMS=5000
 )
 
 db = client["college_voting"]
@@ -52,6 +53,7 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # ---------------- INIT ADMIN ----------------
+# ---------------- INIT ADMIN ----------------
 def init_admin():
     try:
         if admins_col.count_documents({}) == 0:
@@ -64,7 +66,9 @@ def init_admin():
             print("✅ Admin created")
     except Exception as e:
         print("⚠️ Admin init skipped:", e)
+
 init_admin()
+
 
 # ---------------- Helpers ----------------
 def normalize_roll(roll):
