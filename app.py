@@ -24,7 +24,6 @@ votes_col = db["votes"]
 # ---------------- App Setup ----------------
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
-init_admin() # Initialize admin on startup
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # ---------------- Mail Setup ----------------
@@ -60,6 +59,7 @@ def init_admin():
             print("✅ Admin created")
     except Exception as e:
         print("⚠️ Admin init skipped:", e)
+init_admin()
 
 # ---------------- Helpers ----------------
 def normalize_roll(roll):
