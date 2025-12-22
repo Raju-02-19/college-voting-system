@@ -13,7 +13,12 @@ import re
 load_dotenv()
 
 # ---------------- MongoDB Setup ----------------
-client = MongoClient(os.getenv("MONGO_URI"))
+client = MongoClient(
+    os.getenv("MONGO_URI"),
+    tls=True,
+    tlsAllowInvalidCertificates=True
+)
+
 db = client["college_voting"]
 
 students_col = db["students"]
