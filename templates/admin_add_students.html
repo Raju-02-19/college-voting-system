@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Students | Admin</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f9;
+            margin: 0;
+        }
+
+        .navbar {
+            background: #11998e;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .navbar a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 550px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #11998e;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-top: 12px;
+            display: block;
+        }
+
+        select, textarea, input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 6px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 120px;
+        }
+
+        small {
+            color: #555;
+            display: block;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            background: #11998e;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0f766e;
+        }
+
+        .msg {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<div class="navbar">
+    <a href="{{ url_for('admin_dashboard') }}">🏠 Dashboard</a>
+    <a href="{{ url_for('view_students') }}">📋 View Students</a>
+    <a href="{{ url_for('admin_logout') }}">🚪 Logout</a>
+</div>
+
+<div class="container">
+    <h2>➕ Add Students (Bulk)</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="msg {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+
+        <!-- Year -->
+        <label>Select Year</label>
+        <select name="year" required>
+            <option value="">-- Select Year --</option>
+            <option value="1st Year">1st Year</option>
+            <option value="2nd Year">2nd Year</option>
+            <option value="3rd Year">3rd Year</option>
+            <option value="4th Year">4th Year</option>
+        </select>
+
+        <!-- Branch (MANUAL INPUT) -->
+        <label>Branch</label>
+        <input 
+            type="text" 
+            name="branch" 
+            placeholder="Enter Branch (e.g. CSE, IT, AI, DS)" 
+            required
+        >
+
+        <!-- Roll Numbers -->
+        <label>Roll Numbers</label>
+        <textarea 
+            name="roll_numbers" 
+            placeholder="Examples:
+22D31A6601-22D31A6650
+!22D31A6625
+22D31A6670"
+            required></textarea>
+
+        <small>
+            👉 Range supported: <b>22D31A6601-22D31A6650</b><br>
+            👉 Exclude roll: <b>!22D31A6625</b><br>
+            👉 Multiple entries allowed (comma or new line)
+        </small>
+
+        <button type="submit">Add Students</button>
+    </form>
+</div>
+
+</body>
+</html>

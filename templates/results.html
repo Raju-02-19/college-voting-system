@@ -82,29 +82,33 @@
 <div class="container">
     <h2>📊 Election Results</h2>
 
-    {% for position, candidates in results_dict.items() %}
-        <h3>{{ position }}</h3>
-        <table>
-            <tr>
-                <th>Candidate</th>
-                <th>Image</th>
-                <th>Votes</th>
-            </tr>
-            {% for c in candidates %}
-            <tr>
-                <td>{{ c.name }}</td>
-                <td>
-                    {% if c.image %}
-                        <img src="{{ url_for('static', filename='images/' ~ c.image) }}" class="candidate-img" alt="{{ c.name }}">
-                    {% else %}
-                        -
-                    {% endif %}
-                </td>
-                <td>{{ c.votes }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% endfor %}
+   {% for position, candidates in results.items() %}
+    <h3>{{ position }}</h3>
+
+    <table>
+        <tr>
+            <th>Candidate</th>
+            <th>Image</th>
+            <th>Votes</th>
+        </tr>
+
+        {% for c in candidates %}
+        <tr>
+            <td>{{ c.name }}</td>
+            <td>
+                {% if c.image %}
+                    <img src="{{ url_for('static', filename='images/' ~ c.image) }}"
+                         class="candidate-img">
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>{{ c.count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endfor %}
+
 </div>
 </body>
 </html>

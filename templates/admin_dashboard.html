@@ -199,9 +199,11 @@ table tr:hover {
     <p>Manage your voting system efficiently using the options below.</p>
 
     <div class="nav-buttons">
-        <a href="{{ url_for('admin_results') }}" class="btn btn-primary">📊 View Results</a>
+       <!--<a href="{{ url_for('admin_results') }}" class="btn btn-primary">📊 View Results</a>-->
         <a href="{{ url_for('manage_candidates') }}" class="btn btn-secondary">📝 Manage Candidates</a>
         <a href="{{ url_for('view_students') }}" class="btn btn-success">🎓 Registered Students</a>
+        <a href="{{ url_for('admin_add_student') }}">➕ Add Student</a>
+
     </div>
 </div>
 

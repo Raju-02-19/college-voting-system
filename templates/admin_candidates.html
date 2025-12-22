@@ -3,234 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <title>Manage Candidates - College Voting</title>
-    
+
     <style>
-        /* Page Layout */
-body {
-    margin: 0;
-    padding: 0;
-    font-family: "Poppins", sans-serif;
-    background: linear-gradient(120deg, #283e51, #4375ab);
-    color: #ffffff;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(120deg, #283e51, #4375ab);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-/* Navbar */
-.navbar {
-    width: 100%;
-    background: rgba(0,0,0,0.5);
-    padding: 15px 30px;
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-}
+        .navbar {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
 
-.navbar a {
-    text-decoration: none;
-    color: #fff200;
-    font-weight: 600;
-    padding: 8px 16px;
-    transition: 0.3s;
-    border-radius: 8px;
-}
+        .navbar a {
+            text-decoration: none;
+            color: #fff200;
+            font-weight: 600;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
 
-.navbar a:hover {
-    background: rgba(255, 242, 0, 0.2);
-    color: #ffffff;
-}
+        .navbar a:hover {
+            background: rgba(255, 242, 0, 0.2);
+        }
 
-/* Container */
-.container {
-    margin-top: 120px; /* space for navbar */
-    width: 90%;
-    max-width: 1100px;
-    background: rgba(255, 255, 255, 0.08);
-    padding: 40px;
-    border-radius: 16px;
-    backdrop-filter: blur(14px);
-    box-shadow: 0 12px 28px rgba(0,0,0,0.45);
-    animation: fadeIn 0.8s ease-in-out;
-}
+        .container {
+            margin-top: 120px;
+            width: 90%;
+            max-width: 1100px;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 40px;
+            border-radius: 16px;
+            backdrop-filter: blur(14px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.45);
+        }
 
-/* Headings */
-h2, h3 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #fff200;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
+        h2, h3 {
+            text-align: center;
+            color: #fff200;
+        }
 
-/* Form styles */
-form {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 35px;
-}
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 35px;
+        }
 
-form label {
-    margin: 10px 0 6px;
-    font-weight: 600;
-    color: #ffffff;
-}
+        form label {
+            margin-top: 10px;
+            font-weight: 600;
+        }
 
-form input, form select {
-    padding: 14px;
-    border-radius: 12px;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    margin-bottom: 18px;
-    transition: 0.3s;
-}
+        form input, form select {
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            margin-bottom: 18px;
+        }
 
-form input {
-    background: rgba(255,255,255,0.18);
-    color: #ffffff;
-}
+        form button {
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
 
-form select {
-    background: rgba(165, 165, 165, 0.3);
-    color: #ffffff;
-    cursor: pointer;
-}
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+        }
 
-form input::placeholder {
-    color: #bbbbbb;
-}
+        table th, table td {
+            padding: 16px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
 
-form input:focus, form select:focus {
-    background: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 0 10px #ffca28;
-    color: #000000;
-}
+        table th {
+            background: rgba(0,0,0,0.45);
+            color: #ffca28;
+        }
 
-form button {
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(90deg, #ff512f, #dd2476);
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
+        table img {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
 
-form button:hover {
-    background: linear-gradient(90deg, #dd2476, #ff512f);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.35);
-}
+        table a {
+            color: #ff5252;
+            font-weight: bold;
+            text-decoration: none;
+        }
 
-/* Table styles */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 25px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 14px;
-    overflow: hidden;
-}
-
-table th, table td {
-    padding: 16px;
-    text-align: center;
-    border-bottom: 1px solid rgba(255,255,255,0.12);
-    font-size: 15px;
-}
-
-table th {
-    background: rgba(0,0,0,0.45);
-    color: #ffca28;
-    font-weight: bold;
-}
-
-table tr:hover {
-    background: rgba(255,255,255,0.12);
-    transition: 0.3s;
-}
-
-/* Candidate images */
-table img {
-    width: 60px;
-    height: 60px;
-    border-radius: 10px;
-    border: 2px solid #ffca28;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.45);
-    object-fit: cover;
-}
-
-/* Delete link */
-table a {
-    color: #ff5252;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 15px;
-    transition: 0.3s;
-}
-
-table a:hover {
-    color: #ff1744;
-    text-decoration: underline;
-}
-
-/* Flash messages */
-.flash {
-    background: rgba(255, 255, 255, 0.18);
-    color: #ffca28;
-    padding: 14px;
-    margin-bottom: 18px;
-    border-radius: 12px;
-    text-align: center;
-    font-weight: bold;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
-    animation: flashFade 3s forwards;
-}
-
-@keyframes flashFade {
-    0% {opacity: 1;}
-    80% {opacity: 1;}
-    100% {opacity: 0;}
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(25px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .container {
-        width: 95%;
-        padding: 25px;
-    }
-
-    form input, form select, form button {
-        font-size: 14px;
-        padding: 12px;
-    }
-
-    table th, table td {
-        padding: 12px;
-        font-size: 13px;
-    }
-
-    table img {
-        width: 50px;
-        height: 50px;
-    }
-}
+        table a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -245,70 +136,62 @@ table a:hover {
 <div class="container">
     <h2>📝 Manage Candidates</h2>
 
-    <!-- Add Candidate Form -->
-    <div class="form-section">
-        <h3>Add Candidate</h3>
-        <form method="post" enctype="multipart/form-data" class="candidate-form">
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" name="name" id="name" required>
-            </div>
+    <h3>Add Candidate</h3>
+    <form method="post" enctype="multipart/form-data">
+        <label>Name</label>
+        <input type="text" name="name" required>
 
-            <div class="form-group">
-                <label for="position">Position:</label>
-                <select name="position" id="position" required>
-                    <option value="President">President</option>
-                    <option value="Vice President">Vice President</option>
-                    <option value="Secretary">Secretary</option>
-                    <option value="Treasurer">Treasurer</option>
-                </select>
-            </div>
+        <label>Position</label>
+        <select name="position" required>
+            <option value="President">President</option>
+            <option value="Vice President">Vice President</option>
+            <option value="Secretary">Secretary</option>
+            <option value="Treasurer">Treasurer</option>
+        </select>
 
-            <div class="form-group">
-                <label for="image">Image (optional):</label>
-                <input type="file" name="image" id="image" accept="image/*">
-            </div>
+        <label>Image (optional)</label>
+        <input type="file" name="image">
 
-            <button type="submit" class="btn-add">Add Candidate</button>
-        </form>
-    </div>
+        <button type="submit">Add Candidate</button>
+    </form>
 
-    <!-- Existing Candidates Table -->
-    <div class="table-section">
-        <h3>Existing Candidates</h3>
-        <table class="candidate-table">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Position</th>
-                    <th>Image</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for c in candidates %}
-                <tr>
-                    <td>{{ c.name }}</td>
-                    <td>{{ c.position }}</td>
-                    <td>
-                        {% if c.image %}
-                            <img src="{{ url_for('static', filename='images/' ~ c.image) }}" class="candidate-img" alt="{{ c.name }}">
-                        {% else %}
-                            -
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ url_for('delete_candidate', candidate_id=c.id) }}" class="btn-delete" onclick="return confirm('Are you sure you want to delete this candidate?')">Delete</a>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="4">No candidates added yet.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+    <h3>Existing Candidates</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Position</th>
+                <th>Image</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for c in candidates %}
+            <tr>
+                <td>{{ c.name }}</td>
+                <td>{{ c.position }}</td>
+                <td>
+                    {% if c.image %}
+                        <img src="{{ url_for('static', filename='images/' ~ c.image) }}">
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <!-- ✅ MONGODB FIX -->
+                    <a href="{{ url_for('delete_candidate', candidate_id=c._id) }}"
+                       onclick="return confirm('Are you sure you want to delete this candidate?')">
+                        Delete
+                    </a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">No candidates added yet.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 </body>
