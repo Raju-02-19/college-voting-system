@@ -53,7 +53,16 @@ app.config["MAIL_USERNAME"] = os.getenv("MAIL_USERNAME")
 app.config["MAIL_PASSWORD"] = os.getenv("MAIL_PASSWORD")
 app.config["MAIL_DEFAULT_SENDER"] = app.config["MAIL_USERNAME"]
 
-mail = Mail(app)
+mail = None
+
+def init_mail(app):
+    global mail
+    try:
+        mail = Mail(app)
+        print("✅ Mail initialized")
+    except Exception as e:
+        print("⚠️ Mail init failed:", e)
+
 
 # ---------------- Upload Setup ----------------
 UPLOAD_FOLDER = os.path.join(basedir, "static", "images")
@@ -158,7 +167,15 @@ def register():
             recipients=[email],
             body=f"Your OTP is: {otp}"
         )
-        mail.send(msg)
+        if mail:
+            try:
+                mail.send(msg)
+            except Exception as e:
+                print("⚠️ Mail send failed:", e)
+        else:
+            print("⚠️ Mail not initialized. OTP not sent.")
+
+
 
         flash("📧 OTP sent to email", "success")
         return redirect(url_for("verify"))
@@ -435,5 +452,6 @@ def admin_logout():
     return redirect(url_for("admin_login"))
 
 # ---------------- Run ----------------
+init_mail(app)
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
