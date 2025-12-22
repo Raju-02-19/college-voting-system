@@ -24,6 +24,7 @@ votes_col = db["votes"]
 # ---------------- App Setup ----------------
 app = Flask(__name__, static_folder="static", template_folder="templates")
 app.secret_key = os.getenv("SECRET_KEY", "supersecretkey")
+init_admin() # Initialize admin on startup
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 # ---------------- Mail Setup ----------------
@@ -47,14 +48,18 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # ---------------- INIT ADMIN ----------------
-if admins_col.count_documents({}) == 0:
-    admins_col.insert_one({
-        "username": os.getenv("ADMIN_USERNAME"),
-        "password_hash": generate_password_hash(os.getenv("ADMIN_PASSWORD"))
-    })
-    print("✅ Admin created")
-else:
-    print("ℹ️ Admin already exists")
+def init_admin():
+    try:
+        if admins_col.count_documents({}) == 0:
+            admins_col.insert_one({
+                "username": os.getenv("ADMIN_USERNAME", "admin"),
+                "password_hash": generate_password_hash(
+                    os.getenv("ADMIN_PASSWORD", "admin123")
+                )
+            })
+            print("✅ Admin created")
+    except Exception as e:
+        print("⚠️ Admin init skipped:", e)
 
 # ---------------- Helpers ----------------
 def normalize_roll(roll):
