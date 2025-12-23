@@ -9,6 +9,8 @@ import os
 import random
 import re
 
+OTP_MAIL_ENABLED = False
+
 # ---------------- Load ENV ----------------
 load_dotenv()
 
@@ -169,13 +171,14 @@ def register():
             recipients=[email],
             body=f"Your OTP is: {otp}"
         )
-        if mail:
+        if OTP_MAIL_ENABLED and mail:
             try:
                 mail.send(msg)
             except Exception as e:
-                print("⚠️ Mail send failed:", e)
+                print("Mail error:", e)
         else:
-            print("⚠️ Mail not initialized. OTP not sent.")
+            print("OTP (DEV MODE):", otp)
+
 
 
 
