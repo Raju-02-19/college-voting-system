@@ -165,7 +165,8 @@ def register():
 
         otp = str(random.randint(1000, 9999))
         session["otp"] = otp
-
+        print("OTP (DEV MODE):", otp)
+        
         msg = Message(
             subject="OTP Verification",
             recipients=[email],
