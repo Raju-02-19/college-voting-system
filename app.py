@@ -88,7 +88,9 @@ def init_admin():
     except Exception as e:
         print("⚠️ Admin init skipped:", e)
 
-init_admin()
+with app.app_context():
+    init_admin()
+
 
 
 # ---------------- Helpers ----------------
@@ -453,5 +455,3 @@ def admin_logout():
 
 # ---------------- Run ----------------
 init_mail(app)
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
