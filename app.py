@@ -209,25 +209,26 @@ def vote():
         return redirect(url_for("login"))
 
     allowed, msg = is_voting_open()
-    if not allowed:
-        flash(msg, "error")
-        return redirect(url_for("login"))
 
     roll = session["roll_number"]
     student = students_col.find_one({"roll_number": roll})
 
-    if student.get("has_voted"):
-        flash("⚠️ You already voted", "error")
-        return redirect(url_for("thank_you"))
-
     if request.method == "POST":
+        if not allowed:
+            flash(msg, "error")
+            return redirect(url_for("vote"))
+
+        if student.get("has_voted"):
+            flash("⚠️ You already voted", "error")
+            return redirect(url_for("thank_you"))
+
         votes_col.insert_one({
             "roll_number": roll,
             "president": request.form.get("president"),
             "vice_president": request.form.get("vice_president"),
             "secretary": request.form.get("secretary"),
             "treasurer": request.form.get("treasurer"),
-            "time": datetime.now(IST)
+            "voted_at": datetime.now(IST)
         })
 
         students_col.update_one(
@@ -238,13 +239,16 @@ def vote():
         flash("🎉 Vote submitted successfully", "success")
         return redirect(url_for("thank_you"))
 
+    # 👇👇 IMPORTANT PART
     return render_template(
         "student/vote.html",
+        voting_open=allowed,   # ✅ THIS WAS MISSING
         president_candidates=list(candidates_col.find({"position": "President"})),
         vice_president_candidates=list(candidates_col.find({"position": "Vice President"})),
         secretary_candidates=list(candidates_col.find({"position": "Secretary"})),
         treasurer_candidates=list(candidates_col.find({"position": "Treasurer"}))
     )
+
 
 @app.route("/thank_you")
 def thank_you():
