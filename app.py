@@ -52,6 +52,14 @@ def allowed_file(filename):
 def normalize_roll(roll):
     return (roll or "").strip().upper()
 
+def valid_password(pw):
+    if len(pw) < 6:
+        return False
+    if not re.search(r"[A-Z]", pw):
+        return False
+    return True
+
+
 def generate_temp_password(roll):
     """ temp password:
     first 2 chars + last 4 digits
