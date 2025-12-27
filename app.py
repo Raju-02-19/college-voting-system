@@ -154,7 +154,7 @@ def is_voting_open():
 
 @app.route("/")
 def home():
-    return redirect(url_for("login"))
+    return redirect(url_for("register"))
 
 # ---------- REGISTER ----------
 @app.route("/register", methods=["GET", "POST"])
