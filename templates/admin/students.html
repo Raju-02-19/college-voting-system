@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registered Students | Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; background:#f4f4f9; margin:0; }
+
+        .navbar {
+            background:#11998e;
+            padding:15px;
+            text-align:center;
+        }
+
+        .navbar a {
+            color:white;
+            margin:0 15px;
+            text-decoration:none;
+            font-weight:bold;
+        }
+
+        .navbar a:hover { text-decoration:underline; }
+
+        h2 {
+            text-align:center;
+            margin-top:30px;
+            color:#11998e;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 95%;
+            margin: 30px auto;
+            background:#fff;
+            box-shadow:0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+
+        th {
+            background:#11998e;
+            color: white;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 6px;
+            box-sizing: border-box;
+        }
+
+        .btn-update, .btn-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .btn-update { background: #28a745; }
+        .btn-update:hover { background: #218838; }
+
+        .btn-delete {
+            background: #dc3545;
+            text-decoration: none;
+            padding: 6px 12px;
+            display: inline-block;
+        }
+        .btn-delete:hover { background: #c82333; }
+    </style>
+</head>
+<body>
+
+<!-- ADMIN NAVBAR -->
+<div class="navbar">
+    <a href="{{ url_for('admin_dashboard') }}">🏠 Dashboard</a>
+    <a href="{{ url_for('admin_add_student') }}">➕ Add Students</a>
+    <a href="{{ url_for('admin_logout') }}">🚪 Logout</a>
+</div>
+
+<h2>📋 Registered Students</h2>
+
+<table>
+    <tr>
+        <th>Mongo ID</th>
+        <th>Roll Number</th>
+        <th>Email</th>
+        <th>Branch</th>
+        <th>Year</th>
+        <th>Verified</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for s in students %}
+    <tr>
+        <form method="POST" action="{{ url_for('update_student', student_id=s._id) }}">
+            <td>{{ s._id }}</td>
+
+            <td>
+                <input type="text" name="roll_number" value="{{ s.roll_number }}">
+            </td>
+
+            <td>
+                <input type="text" name="email" value="{{ s.email }}">
+            </td>
+
+            <td>
+                <input type="text" name="branch" value="{{ s.branch }}">
+            </td>
+
+            <td>
+                <input type="text" name="year" value="{{ s.year }}">
+            </td>
+
+            <td>
+                <select name="is_verified">
+                    <option value="true" {% if s.is_verified %}selected{% endif %}>Yes</option>
+                    <option value="false" {% if not s.is_verified %}selected{% endif %}>No</option>
+                </select>
+            </td>
+
+            <td>
+                <button type="submit" class="btn-update">Update</button>
+                <a href="{{ url_for('delete_student', student_id=s._id) }}"
+                   class="btn-delete"
+                   onclick="return confirm('Delete this student?');">
+                   Delete
+                </a>
+            </td>
+        </form>
+    </tr>
+    {% endfor %}
+</table>
+
+</body>
+</html>

@@ -67,7 +67,7 @@
             color: #555;
             display: block;
             margin-top: 6px;
-            line-height: 1.4;
+            line-height: 1.5;
         }
 
         button {
@@ -88,12 +88,12 @@
 
         .msg {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-weight: bold;
         }
 
-        .error { color: red; }
         .success { color: green; }
+        .error { color: red; }
     </style>
 </head>
 <body>
@@ -109,11 +109,9 @@
     <h2>➕ Add Students (Bulk)</h2>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="msg {{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
+      {% for category, message in messages %}
+        <div class="msg {{ category }}">{{ message }}</div>
+      {% endfor %}
     {% endwith %}
 
     <form method="POST">
@@ -128,29 +126,29 @@
             <option value="4th Year">4th Year</option>
         </select>
 
-        <!-- Branch (MANUAL INPUT) -->
+        <!-- Branch -->
         <label>Branch</label>
-        <input 
-            type="text" 
-            name="branch" 
-            placeholder="Enter Branch (e.g. CSE, IT, AI, DS)" 
+        <input
+            type="text"
+            name="branch"
+            placeholder="Enter Branch (e.g. CSE, IT, AI, DS)"
             required
         >
 
         <!-- Roll Numbers -->
         <label>Roll Numbers</label>
-        <textarea 
-            name="roll_numbers" 
+        <textarea
+            name="roll_numbers"
             placeholder="Examples:
 22D31A6601-22D31A6650
-!22D31A6625
+skip:22D31A6625
 22D31A6670"
             required></textarea>
 
         <small>
-            👉 Range supported: <b>22D31A6601-22D31A6650</b><br>
-            👉 Exclude roll: <b>!22D31A6625</b><br>
-            👉 Multiple entries allowed (comma or new line)
+            ✔ Range supported: <b>22D31A6601-22D31A6650</b><br>
+            ✔ Skip specific roll: <b>skip:22D31A6625</b><br>
+            ✔ Multiple lines allowed
         </small>
 
         <button type="submit">Add Students</button>

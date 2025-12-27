@@ -113,14 +113,20 @@
             object-fit: cover;
         }
 
-        table a {
+        .delete-btn {
             color: #ff5252;
             font-weight: bold;
             text-decoration: none;
         }
 
-        table a:hover {
+        .delete-btn:hover {
             text-decoration: underline;
+        }
+
+        .empty-row {
+            text-align: center;
+            padding: 20px;
+            color: #ddd;
         }
     </style>
 </head>
@@ -131,6 +137,8 @@
     <a href="{{ url_for('view_students') }}">🎓 Students</a>
     <a href="{{ url_for('admin_results') }}">📊 Results</a>
     <a href="{{ url_for('admin_logout') }}">🚪 Logout</a>
+    
+
 </div>
 
 <div class="container">
@@ -150,7 +158,7 @@
         </select>
 
         <label>Image (optional)</label>
-        <input type="file" name="image">
+        <input type="file" name="image" accept="image/*">
 
         <button type="submit">Add Candidate</button>
     </form>
@@ -178,16 +186,17 @@
                     {% endif %}
                 </td>
                 <td>
-                    <!-- ✅ MONGODB FIX -->
-                    <a href="{{ url_for('delete_candidate', candidate_id=c._id) }}"
-                       onclick="return confirm('Are you sure you want to delete this candidate?')">
-                        Delete
+                    <a class="delete-btn"
+                        href="{{ url_for('delete_candidate', cid=c._id) }}"
+                        onclick="return confirm('Are you sure you want to delete this candidate?')">
+                            Delete
                     </a>
                 </td>
+
             </tr>
         {% else %}
             <tr>
-                <td colspan="4">No candidates added yet.</td>
+                <td colspan="4" class="empty-row">No candidates added yet.</td>
             </tr>
         {% endfor %}
         </tbody>

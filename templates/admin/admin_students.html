@@ -2,12 +2,31 @@
 <html>
 <head>
     <title>Students | Admin</title>
+
     <style>
         body {
             font-family: Arial, sans-serif;
             background: #f4f4f9;
             margin: 0;
             padding-bottom: 40px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: #11998e;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .navbar a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
         }
 
         h2 {
@@ -78,8 +97,17 @@
 </head>
 <body>
 
-<!-- 🔴 BULK DELETE FORM START -->
-<form method="POST" action="{{ url_for('bulk_delete_students') }}">
+<!-- NAVBAR -->
+<div class="navbar">
+    <a href="{{ url_for('admin_dashboard') }}">🏠 Dashboard</a>
+    <a href="{{ url_for('admin_add_student') }}">➕ Add Students</a>
+    <a href="{{ url_for('admin_logout') }}">🚪 Logout</a>
+</div>
+
+<!-- BULK DELETE FORM -->
+<form method="POST"
+      action="{{ url_for('bulk_delete_students') }}"
+      onsubmit="return confirm('Are you sure you want to delete selected students?');">
 
 <div class="actions">
     <button type="submit">🗑 Delete Selected</button>
@@ -93,25 +121,35 @@
     <th>Select</th>
     <th>Roll Number</th>
     <th>Branch</th>
-    <th>Verified</th>
+    <th>Registered</th>
 </tr>
 
-{% for s in students %}
-<tr>
-    <td>
-        <input type="checkbox" name="student_ids" value="{{ s._id }}">
-    </td>
-    <td>{{ s.roll_number }}</td>
-    <td>{{ s.branch }}</td>
-    <td>{{ "Yes" if s.is_verified else "No" }}</td>
-</tr>
-{% endfor %}
+{% if students %}
+    {% for s in students %}
+    <tr>
+        <td>
+            <input type="checkbox" name="student_ids" value="{{ s._id }}">
+        </td>
+        <td>{{ s.roll_number }}</td>
+        <td>{{ s.branch }}</td>
+        <td>
+            {% if s.is_registered %}
+                <span class="verified">Yes</span>
+            {% else %}
+                <span class="not-verified">No</span>
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+{% else %}
+    <tr>
+        <td colspan="4" class="empty">No students added for this year</td>
+    </tr>
+{% endif %}
 </table>
 {% endfor %}
 
 </form>
-
-<!-- 🔴 BULK DELETE FORM END -->
 
 </body>
 </html>

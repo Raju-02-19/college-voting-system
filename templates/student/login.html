@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+<head>
+  <title>Student Login</title>
+
+  <style>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #89f7fe, #66a6ff);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ADMIN LOGIN LINK */
+.admin-login {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+}
+
+.admin-login a {
+  color: #ffffff;
+  background: #667eea;
+  padding: 10px 18px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.admin-login a:hover {
+  background: #764ba2;
+}
+
+/* LOGIN CARD */
+.login-card {
+  background: #ffffff;
+  padding: 40px 35px;
+  border-radius: 20px;
+  width: 380px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  border-top: 6px solid #667eea;
+}
+
+/* HEADING */
+.login-card h2 {
+  margin-bottom: 25px;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+.login-card h2::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  margin: 8px auto 0;
+  border-radius: 2px;
+}
+
+/* INPUT */
+.input-field {
+  width: 100%;
+  padding: 14px 12px;
+  margin: 15px 0;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.input-field:focus {
+  border-color: #667eea;
+  outline: none;
+  box-shadow: 0 0 8px rgba(102,126,234,0.4);
+}
+
+/* BUTTON */
+.btn-primary {
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  color: #fff;
+  padding: 14px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #764ba2, #667eea);
+}
+
+/* FLASH */
+.flash {
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.flash-success {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.flash-error {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.flash-info {
+  background: #e0f2fe;
+  color: #0c4a6e;
+}
+
+.login-card a {
+  color: #667eea;
+  font-weight: bold;
+  text-decoration: none;
+}
+  </style>
+</head>
+
+<body>
+
+<!-- ADMIN LOGIN -->
+<div class="admin-login">
+  <a href="{{ url_for('admin_login') }}">Admin Login</a>
+</div>
+
+<div class="login-card">
+
+  <h2>Student Login</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="flash flash-{{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="post" autocomplete="off">
+    <input type="text"
+           name="roll_number"
+           class="input-field"
+           placeholder="Roll Number"
+           required>
+
+    <input type="password"
+           name="password"
+           class="input-field"
+           placeholder="Password"
+           required>
+
+    <button class="btn-primary" type="submit">Login</button>
+  </form>
+
+  <p style="margin-top:15px;">
+    New student?
+    <a href="{{ url_for('register') }}">Register here</a>
+  </p>
+
+</div>
+
+</body>
+</html>
