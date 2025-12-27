@@ -22,9 +22,16 @@ BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 IST = timezone(timedelta(hours=5, minutes=30))
 
 # ================= MONGODB =================
+# ================= MONGODB =================
 MONGO_URI = os.getenv("MONGO_URI")
-client = MongoClient(MONGO_URI)
+
+client = MongoClient(
+    MONGO_URI.strip(),          # 🔥 newline / space remove
+    serverSelectionTimeoutMS=5000
+)
+
 db = client["college_voting"]
+
 
 students_col = db.students
 admins_col = db.admins
@@ -45,19 +52,14 @@ def allowed_file(filename):
 def normalize_roll(roll):
     return (roll or "").strip().upper()
 
-def valid_password(password):
-    if not password:
-        return False
-    if len(password) < 6:
-        return False
-    if not re.search(r"[A-Z]", password):
-        return False
-    return True
-
 def generate_temp_password(roll):
-    # first 2 digits + last 4 digits
+    """ temp password:
+    first 2 chars + last 4 digits
+    example: 22D31A6601 -> 22 6601 -> 226601
+    """
     roll = normalize_roll(roll)
     return roll[:2] + roll[-4:]
+
 
 def generate_rolls(input_text):
     rolls = set()
@@ -70,10 +72,18 @@ def generate_rolls(input_text):
         if not line:
             continue
 
+        # ✅ skip:22D31A6625
+        if line.lower().startswith("skip:"):
+            skip_roll = normalize_roll(line.split(":", 1)[1])
+            skip.add(skip_roll)
+            continue
+
+        # ✅ !22D31A6625
         if line.startswith("!"):
             skip.add(normalize_roll(line[1:]))
             continue
 
+        # ✅ range 22D31A6601-22D31A6650
         if "-" in line:
             start, end = line.split("-")
             start = normalize_roll(start)
@@ -88,7 +98,9 @@ def generate_rolls(input_text):
         else:
             rolls.add(normalize_roll(line))
 
+    # 🔥 IMPORTANT LINE
     return sorted(rolls - skip)
+
 
 # ================= INIT ADMIN =================
 def init_admin():
@@ -356,6 +368,15 @@ def admin_add_student():
         added = skipped = 0
 
         for roll in roll_list:
+
+            roll = roll.strip()  # safety
+
+            # 🔥 SKIP rule
+            if roll.lower().startswith("skip:"):
+                skipped += 1
+                continue
+
+            # 🔁 Already exists
             if students_col.find_one({"roll_number": roll}):
                 skipped += 1
                 continue
@@ -378,6 +399,7 @@ def admin_add_student():
         return redirect(url_for("view_students"))
 
     return render_template("admin/admin_add_students.html")
+
 
 # ---------- VIEW STUDENTS ----------
 @app.route("/admin/students")
